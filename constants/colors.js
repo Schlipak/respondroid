@@ -94,6 +94,16 @@ export const standardColors = {
     dark: '#455A64',
     accent: '#607D8B',
   },
+  white: {
+    light: '#ffffff',
+    dark: '#f1f2f6',
+    accent: '#dfe4ea',
+  },
+  black: {
+    light: '#212121',
+    dark: '#000000',
+    accent: '#484848',
+  },
 };
 
 export const palette = {

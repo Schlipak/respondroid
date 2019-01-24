@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "respondroid",
+    "name": "ResponDroid",
     "slug": "respondroid",
     "privacy": "public",
     "sdkVersion": "32.0.0",
@@ -23,7 +23,11 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "eu.epitech.respondroid"
+    },
+    "android": {
+      "package": "eu.epitech.respondroid"
     }
   }
 }

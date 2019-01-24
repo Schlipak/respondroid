@@ -22,6 +22,11 @@ module.exports = {
     'react-native/split-platform-components': 2,
     'react-native/no-inline-styles': 2,
     'react-native/no-color-literals': 2,
-    'react-native/no-raw-text': 2,
+    'react-native/no-raw-text': [
+      2,
+      { skip: ['Title', 'Headline', 'Subheading', 'Button', 'HelperText'] },
+    ],
+    'no-return-assign': [0],
+    'class-methods-use-this': [0],
   },
 };

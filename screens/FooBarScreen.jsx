@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
 import {
-  StyleSheet, Text, ScrollView, View,
+  StyleSheet, Text, ScrollView, View, RefreshControl,
 } from 'react-native';
-import { Button, Divider } from 'react-native-paper';
+import { Button, Divider, Switch } from 'react-native-paper';
 
-import { standardColors } from '../constants/colors';
+import { standardColors, palette } from '../constants/colors';
 
 const styles = StyleSheet.create({
   content: {
@@ -14,6 +14,10 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 20,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   buttonsContainer: {
     flexDirection: 'column',
@@ -36,32 +40,65 @@ const styles = StyleSheet.create({
   },
 });
 
-export default () => (
-  <ScrollView>
-    <View style={styles.content}>
-      <Text>Lorem ipsum dolor sit amet consectetur adipisicing.</Text>
-      <Divider style={styles.divider} />
-      <Button mode="outlined" onPress={() => console.log('Pressed')}>
-        <Text>Foo Bar</Text>
-      </Button>
-      <View style={styles.buttonsContainer}>
-        {Object.keys(standardColors).map((key) => {
-          const color = standardColors[key].light;
+export default class FooBarScreen extends Component {
+  constructor() {
+    super();
 
-          return (
-            <View key={key} style={styles.buttonsRow}>
-              <Button
-                mode="contained"
-                style={styles.button}
-                color={color}
-                onPress={() => console.log(`Pressed button ${key}`)}
-              >
-                {key}
-              </Button>
-            </View>
-          );
-        })}
-      </View>
-    </View>
-  </ScrollView>
-);
+    this.state = { isContained: false, refreshing: false };
+  }
+
+  onRefresh = () => {
+    this.setState({ refreshing: true });
+    setTimeout(() => {
+      this.setState({ refreshing: false });
+    }, 8000);
+  };
+
+  render() {
+    const { isContained, refreshing } = this.state;
+
+    return (
+      <ScrollView
+        refreshControl={(
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={this.onRefresh}
+            colors={Object.values(standardColors).map(value => value.light)}
+            tintColor={palette.accent}
+            title="Test reload"
+          />
+        )}
+      >
+        <View style={styles.content}>
+          <Text>Lorem ipsum dolor sit amet consectetur adipisicing.</Text>
+          <View style={styles.switchContainer}>
+            <Text>{isContained ? 'Contained' : 'Outlined'}</Text>
+            <Switch
+              value={isContained}
+              onValueChange={() => this.setState({ isContained: !isContained })}
+            />
+          </View>
+          <Divider style={styles.divider} />
+          <View style={styles.buttonsContainer}>
+            {Object.keys(standardColors).map((key) => {
+              const color = standardColors[key].light;
+
+              return (
+                <View key={key} style={styles.buttonsRow}>
+                  <Button
+                    mode={isContained ? 'contained' : 'outlined'}
+                    style={styles.button}
+                    color={color}
+                    onPress={() => console.log(`Pressed button ${key}`)}
+                  >
+                    {key}
+                  </Button>
+                </View>
+              );
+            })}
+          </View>
+        </View>
+      </ScrollView>
+    );
+  }
+}

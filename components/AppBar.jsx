@@ -17,7 +17,7 @@ const AppBar = ({ navigation }) => {
           onPress={() => navigation.goBack()}
         />
       )}
-      <Appbar.Content title="ResponDroid" />
+      <Appbar.Content title={routeName === 'Home' ? 'ResponDroid' : routeName} />
     </Appbar.Header>
   );
 };
