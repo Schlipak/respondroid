@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import PropType from 'prop-types';
 import {
-  StyleSheet, View, KeyboardAvoidingView, TextInput as NativeTextInput,
+  StyleSheet, View, KeyboardAvoidingView, TextInput as NativeTextInput, Image
 } from 'react-native';
 import {
   Headline, TextInput, Button, HelperText,
 } from 'react-native-paper';
+import AirtableLogo from '../assets/AirtableLogo.jpg';
 
 const styles = StyleSheet.create({
   content: {
@@ -52,21 +53,16 @@ export default class HomeScreen extends Component {
 
   validateEmail = () => {
     const { email } = this.state;
-    const emailError = !email.match(/^[^@]+@[^@]+$/);
-
-    if (this.toto) {
-      console.log('toto');
-      this.setState({ emailError });
-    }
+    this.setState({
+      emailError: email.length === 0,
+    });
   };
 
   validatePassword = () => {
     const { password } = this.state;
-    const passwordError = password.length < 6;
-
-    if (this.toto) {
-      this.setState({ passwordError });
-    }
+    this.setState({
+      passwordError: password.length === 0,
+    })
   };
 
   validateAndSubmit = () => {
@@ -83,11 +79,11 @@ export default class HomeScreen extends Component {
 
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
-        <Headline style={styles.headline}>Sign in to ResponDroid</Headline>
+        <Image source={AirtableLogo} />
+        <Headline style={styles.headline}>Sign in to Airtable</Headline>
         <View style={styles.inputContainer}>
           <TextInput
-            label="Email"
-            placeholder="john.doe@example.com"
+            label="Account ID"
             value={email}
             error={emailError}
             mode="outlined"
@@ -104,14 +100,13 @@ export default class HomeScreen extends Component {
             )}
           />
           <HelperText type="error" visible={emailError}>
-            Please input a valid email address
+            Invalid ID
           </HelperText>
         </View>
         <View style={styles.inputContainer}>
           <TextInput
             ref={passwordInput => (this.passwordInput = passwordInput)}
-            label="Password"
-            placeholder="••••••"
+            label="Account Key"
             value={password}
             error={passwordError}
             mode="outlined"
@@ -122,17 +117,17 @@ export default class HomeScreen extends Component {
             )}
           />
           <HelperText type="error" visible={passwordError}>
-            The password must be 6 characters or longer
+            Invalid Key
           </HelperText>
         </View>
         <View style={styles.inputContainer}>
           <Button
             style={styles.loginButton}
-            mode="outlined"
+            mode="contained"
             disabled={emailError || passwordError}
             onPress={this.validateAndSubmit}
           >
-            Log in
+            Connect
           </Button>
         </View>
       </KeyboardAvoidingView>

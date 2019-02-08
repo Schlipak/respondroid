@@ -4,7 +4,7 @@ import {
   View, ScrollView, StyleSheet, Platform,
 } from 'react-native';
 import {
-  Provider as PaperProvider, Drawer, Card, Text, TouchableRipple,
+  Provider as PaperProvider, Drawer, Card, Text, TouchableRipple, Button,
 } from 'react-native-paper';
 
 import theme from '../constants/theme';
@@ -67,7 +67,6 @@ const AppDrawer = ({ navigation }) => {
             style={styles.cardImage}
           />
           <TouchableRipple
-            onPress={() => console.log('Ripple')}
             rippleColor={theme.colors.overlay.light}
             style={styles.cardOverlay}
           >
@@ -76,8 +75,21 @@ const AppDrawer = ({ navigation }) => {
                 source={{ uri: 'https://picsum.photos/700/?image=1027' }}
                 style={styles.cardIcon}
               />
-              <Text style={styles.cardUsername}>Username</Text>
-              <Text style={styles.cardEmail}>firstname.lastname@host.com</Text>
+              {
+                false && <View>
+                  <Text style={styles.cardUsername}>Username</Text>
+                  <Text style={styles.cardEmail}>firstname.lastname@host.com</Text>
+                </View>
+              }
+              {
+                true && <View>
+                  <Button
+                    mode={'contained'}
+                    onPress={() => navigation.navigate('Login')}>
+                    Login
+                  </Button>
+                </View>
+              }
             </>
           </TouchableRipple>
         </View>
