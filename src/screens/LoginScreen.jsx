@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropType from 'prop-types';
 import {
   StyleSheet, View, KeyboardAvoidingView, TextInput as NativeTextInput, Image
 } from 'react-native';
 import {
-  Headline, TextInput, Button, HelperText,
+  Headline, TextInput, Button, HelperText, Text,
 } from 'react-native-paper';
-import AirtableLogo from '../assets/AirtableLogo.jpg';
+import AirtableLogo from '../../assets/AirtableLogo.jpg';
+import { selectApi } from '../ducks/api';
+import { connectApi } from '../middlewares/Api/thunks';
 
 const styles = StyleSheet.create({
   content: {
@@ -26,18 +29,30 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class HomeScreen extends Component {
+const extractor = (state) => ({
+  api: selectApi(state),
+});
+
+const dispatcher = (dispatch) => ({
+  connectToApi: (e, p) => dispatch(connectApi({
+    baseID: e,
+    airtableID: p,
+  })),
+});
+
+class LoginScreen extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
   };
 
   constructor() {
     super();
-
+    this.myapikey = '';
+    this.baseid = '';
     this.state = {
-      email: '',
+      email: this.baseid,
       emailError: false,
-      password: '',
+      password: this.myapikey,
       passwordError: false,
     };
   }
@@ -62,14 +77,14 @@ export default class HomeScreen extends Component {
     const { password } = this.state;
     this.setState({
       passwordError: password.length === 0,
-    })
+    });
   };
 
   validateAndSubmit = () => {
     this.validateEmail();
     this.validatePassword();
 
-    // const { emailError, passwordError } = this.state;
+    this.props.connectToApi(this.state.email, this.state.password);
   };
 
   render() {
@@ -81,10 +96,14 @@ export default class HomeScreen extends Component {
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         <Image source={AirtableLogo} />
         <Headline style={styles.headline}>Sign in to Airtable</Headline>
+        <Text>
+          {JSON.stringify(this.props.api)}
+        </Text>
         <View style={styles.inputContainer}>
           <TextInput
+            disabled={this.props.api.connected}
             label="Account ID"
-            value={email}
+            value={email || this.baseid}
             error={emailError}
             mode="outlined"
             onChangeText={text => this.setState({ email: text })}
@@ -105,9 +124,10 @@ export default class HomeScreen extends Component {
         </View>
         <View style={styles.inputContainer}>
           <TextInput
+            disabled={this.props.api.connected}
             ref={passwordInput => (this.passwordInput = passwordInput)}
             label="Account Key"
-            value={password}
+            value={password || this.myapikey}
             error={passwordError}
             mode="outlined"
             onChangeText={text => this.setState({ password: text })}
@@ -124,7 +144,7 @@ export default class HomeScreen extends Component {
           <Button
             style={styles.loginButton}
             mode="contained"
-            disabled={emailError || passwordError}
+            disabled={emailError || passwordError || this.props.api.connected}
             onPress={this.validateAndSubmit}
           >
             Connect
@@ -134,3 +154,6 @@ export default class HomeScreen extends Component {
     );
   }
 }
+
+const ConnectedLoginScreen = connect(extractor, dispatcher)(LoginScreen);
+export default ConnectedLoginScreen;

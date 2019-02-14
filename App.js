@@ -2,9 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { I18nManager, Platform } from 'react-native';
 import { createDrawerNavigator, createAppContainer } from 'react-navigation';
+import { Provider } from 'react-redux';
 
-import AppDrawer from './components/AppDrawer';
-import RootNavigator from './navigation/RootNavigator';
+import AppDrawer from './src/components/AppDrawer';
+import RootNavigator from './src/navigation/RootNavigator';
+import store from './src/store/store';
 
 export const NavigationContent = ({ navigation }) => <AppDrawer navigation={navigation} />;
 
@@ -22,4 +24,8 @@ export const App = createDrawerNavigator(
 
 export const AppContainer = createAppContainer(App);
 
-export default () => <AppContainer />;
+export default () => (
+  <Provider store={ store }>
+    <AppContainer />
+  </Provider>
+);

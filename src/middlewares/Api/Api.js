@@ -1,0 +1,30 @@
+/**
+ *
+ */
+
+import AirtableApi from './AirtableApi';
+
+class Api {
+  connect(form) {
+    this.form = form;
+    if (form.airtableID !== undefined) {
+      this.internal = new AirtableApi(form);
+      return new Promise((resolve) => {
+        this.internal.connect().then(response => {
+          resolve(response);
+        });
+      });
+    }
+    throw new Error("Unsupported API or invalid parameters");
+  }
+
+  table(name) {
+    return this.internal.table(name);
+  }
+
+  sync(item) {
+    return this.internal.sync(item);
+  }
+}
+
+export default Api;

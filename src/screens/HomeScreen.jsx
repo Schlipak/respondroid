@@ -6,9 +6,9 @@ import {
   Divider, Headline, Paragraph, Title,
 } from 'react-native-paper';
 import LottieView from 'lottie-react-native';
-import BookIcon from '../assets/bookIcon.png';
+import BookIcon from '../../assets/bookIcon.png';
 
-import CheckAnimation from '../assets/check_animation.json';
+import CheckAnimation from '../../assets/check_animation.json';
 
 const styles = StyleSheet.create({
   content: {
