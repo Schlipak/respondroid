@@ -9,29 +9,30 @@ import changeState, { removeState } from '../utils/changeState';
 const PREFIX = '/ducks/menu';
 const initialState = {
   icon: '',
+  name: '',
   visible: false,
   destinations: [],
 };
 
 // Selectors
-export const selectApi = createSelector('selectMenu', (state) => {
-  return state.menu;
-});
+export const selectMenu = createSelector('selectMenu', state => state.menu);
 
 export const TYPES = {
-  connectedToApi: `${PREFIX}/connectedToApi`,
+  setMenu: `${PREFIX}/setMenu`,
 };
 
-export const connectedToApi = createAction(TYPES.connectedToApi, 'types');
-function onConnectedToApi(state, args) {
-  let next = changeState(state, 'types', args.types);
-  next = changeState(next, 'connected', true);
-  return next;
+export const setMenu = createAction(TYPES.setMenu, 'menu');
+function onSetMenu(state, args) {
+  console.warn('SetMENU to ', args.menu);
+  return {
+    ...state,
+    ...args.menu,
+  };
 }
 
 export default function reducer(state = initialState, { type, payload } = {}) {
   switch (type) {
-    // case TYPES.connectedToApi: return onConnectedToApi(state, payload);
-    default: return state;
+  case TYPES.setMenu: return onSetMenu(state, payload);
+  default: return state;
   }
 }

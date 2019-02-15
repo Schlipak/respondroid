@@ -10,6 +10,7 @@ import {
 import AirtableLogo from '../../assets/AirtableLogo.jpg';
 import { selectApi } from '../ducks/api';
 import { connectApi } from '../middlewares/Api/thunks';
+import { selectMenu, setMenu } from '../ducks/menu';
 
 const styles = StyleSheet.create({
   content: {
@@ -29,9 +30,11 @@ const styles = StyleSheet.create({
 
 const extractor = state => ({
   api: selectApi(state),
+  menu: selectMenu(state),
 });
 
 const dispatcher = dispatch => ({
+  setMenu: (menu) => dispatch(setMenu(menu)),
 });
 
 class LoginScreen extends Component {
@@ -42,6 +45,25 @@ class LoginScreen extends Component {
   constructor() {
     super();
     this.state = {};
+  }
+
+  onUpdate = () => {
+    const { navigation, menu } = this.props;
+    if (!menu) {
+      return;
+    }
+    if (menu.name && menu.name !== 'TypeView') {
+      this.props.setMenu({
+        visible: false,
+        name: 'TypeView',
+        destinations: [],
+        icon: '',
+      });
+    }
+  }
+
+  componentDidMount() {
+    this.onUpdate();
   }
 
   displayFields = (fields, bg='aliceblue') => fields.map(field => (
