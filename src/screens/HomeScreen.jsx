@@ -9,6 +9,9 @@ import LottieView from 'lottie-react-native';
 import BookIcon from '../../assets/bookIcon.png';
 
 import CheckAnimation from '../../assets/check_animation.json';
+import { selectApi } from '../ducks/api';
+import { connect } from 'react-redux';
+import UserHomeScreen from './UserHomeScreen';
 
 const styles = StyleSheet.create({
   content: {
@@ -26,7 +29,15 @@ const styles = StyleSheet.create({
   },
 });
 
-export default class HomeScreen extends Component {
+const dispatcher = (dispatch) => ({
+
+});
+
+const extractor = (state) => ({
+  api: selectApi(state),
+});
+
+class HomeScreen extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
   };
@@ -59,9 +70,11 @@ export default class HomeScreen extends Component {
   };
 
   render() {
-    const { navigation } = this.props;
+    const { navigation, api } = this.props;
     const { looping } = this.state;
-
+    if (api.connected) {
+      return <UserHomeScreen navigation={navigation} />;
+    }
     return (
       <View style={styles.content}>
         <Title style={{ color: 'crimson' }}>
@@ -114,3 +127,6 @@ export default class HomeScreen extends Component {
     );
   }
 }
+
+const ConnectedHomeScreen = connect(extractor, dispatcher)(HomeScreen);
+export default ConnectedHomeScreen;

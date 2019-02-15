@@ -18,6 +18,10 @@ class Api {
     throw new Error("Unsupported API or invalid parameters");
   }
 
+  disconnect() {
+    return this.internal.disconnect();
+  }
+
   table(name) {
     return this.internal.table(name);
   }

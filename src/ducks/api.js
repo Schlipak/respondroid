@@ -33,6 +33,7 @@ export const TYPES = {
   setSync: `${PREFIX}/setSync`,
   setItem: `${PREFIX}/setItem`,
   unloadCache: `${PREFIX}/unloadCache`,
+  reset: `${PREFIX}/reset`,
 };
 
 export const connectedToApi = createAction(TYPES.connectedToApi, 'types');
@@ -40,6 +41,11 @@ function onConnectedToApi(state, args) {
   let next = changeState(state, 'types', args.types);
   next = changeState(next, 'connected', true);
   return next;
+}
+
+export const reset = createAction(TYPES.reset);
+function onReset(state) {
+  return initialState;
 }
 
 export const tableContent = createAction(TYPES.tableContent, 'name', 'content');
@@ -120,6 +126,7 @@ export default function reducer(state = initialState, { type, payload } = {}) {
   case TYPES.setSync: return onSetSync(state, payload);
   case TYPES.setItem: return onSetItem(state, payload);
   case TYPES.unloadCache: return onUnloadCache(state, payload);
+  case TYPES.reset: return onReset(state);
   default: return state;
   }
 }

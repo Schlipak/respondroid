@@ -1,5 +1,5 @@
 import { newLoader, setLoading } from '../../ducks/Loaders';
-import { connectedToApi, selectApi, tableContent } from '../../ducks/api';
+import { connectedToApi, reset, selectApi, tableContent } from '../../ducks/api';
 
 export function connectApi(form) {
   return function (dispatch, getState, { api }) {
@@ -26,5 +26,19 @@ export function connectApi(form) {
       dispatch(setLoading('mainLoader', false));
       return Promise.resolve(base);
     });
+  };
+}
+
+export function disconnectApi() {
+  return function (dispatch, getState, { api }) {
+    const state = getState();
+    if (!selectApi(state).connected) {
+      return Promise.resolve();
+    }
+    return api.disconnect().then(success => {
+      if (success) {
+        dispatch(reset());
+      }
+    })
   };
 }

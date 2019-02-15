@@ -12,6 +12,8 @@ import { standardColors } from '../constants/colors';
 import { connect } from 'react-redux';
 import { selectApi } from '../ducks/api';
 import Table from '../middlewares/Api/Table';
+import * as dotprop from 'dot-prop-immutable';
+import { disconnectApi } from '../middlewares/Api/thunks';
 
 const styles = StyleSheet.create({
   drawerContent: {
@@ -56,7 +58,7 @@ const styles = StyleSheet.create({
 });
 
 const dispatcher = (dispatch) => ({
-
+  disconnect: () => dispatch(disconnectApi()),
 });
 
 const extractor = (state) => ({
@@ -75,6 +77,36 @@ class AppDrawer extends React.Component {
     const { routes: routesData } = state;
     const { index, routes } = routesData[0];
     const { routeName } = routes[index];
+
+    const types = dotprop.get(api, 'tables.Types.content') || [];
+    const tables = types.map(t => {
+      return (
+        <Drawer.Item
+          label={t.fields.Name}
+          icon={'folder'}
+          active={routeName === t.fields.Name}
+          onPress={() => navigation.navigate('TypeHome', { title: t.fields.Name, type: t })}
+        />
+      );
+    });
+    const connectedLinks = [
+      <Drawer.Item
+        label={'Logout'}
+        icon={'face'}
+        style={{ textColor: 'crimson' }}
+        onPress={() => { this.props.disconnect().then(() => {
+          navigation.navigate('Home');
+        })}}
+      />,
+      ...tables,
+      <Drawer.Item
+        label={'Preferences'}
+        icon={'cake'}
+        active={routeName === 'Preferences'}
+        onPress={() => navigation.navigate('Preferences')}
+      />,
+    ];
+
     return (
       <PaperProvider theme={theme}>
         <View style={styles.drawerContent}>
@@ -95,8 +127,12 @@ class AppDrawer extends React.Component {
                 {
                   api.connected && (
                     <View>
-                      <Text style={styles.cardUsername}>{Table.getFieldByParentName(api.tables.Meta, 'Creator')}</Text>
-                      <Text style={styles.cardEmail}>Welcome !</Text>
+                      <Text style={styles.cardUsername}>
+                        {Table.getFieldByParentName(api.tables.Meta, 'Creator')}
+                      </Text>
+                      <Text style={styles.cardEmail}>
+                        Connected to {Table.getFieldByParentName(api.tables.Meta, 'AppName')}
+                      </Text>
                     </View>
                   )
                 }
@@ -123,18 +159,9 @@ class AppDrawer extends React.Component {
                 active={routeName === 'Home'}
                 onPress={() => navigation.navigate('Home')}
               />
-              <Drawer.Item
-                label="FooBar"
-                icon="more-horiz"
-                active={routeName === 'FooBar'}
-                onPress={() => navigation.navigate('FooBar')}
-              />
-              <Drawer.Item
-                label="FooBar"
-                icon="list"
-                active={routeName === 'Items'}
-                onPress={() => navigation.navigate('Items')}
-              />
+              {
+                api.connected && connectedLinks
+              }
             </Drawer.Section>
           </ScrollView>
         </View>

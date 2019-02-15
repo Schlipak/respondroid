@@ -84,7 +84,9 @@ class LoginScreen extends Component {
     this.validateEmail();
     this.validatePassword();
 
-    this.props.connectToApi(this.state.email, this.state.password);
+    this.props.connectToApi(this.state.email, this.state.password).then(() => {
+      this.props.navigation.navigate('Home')
+    })
   };
 
   render() {

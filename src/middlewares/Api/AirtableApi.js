@@ -29,6 +29,14 @@ export default class AirtableApi {
     });
   }
 
+  disconnect() {
+    this.apiKey = undefined;
+    this.baseID = undefined;
+    this.airtable = undefined;
+    this.base = undefined;
+    return Promise.resolve(true);
+  }
+
   table(name, max=50) {
     return new Promise(resolve => {
       const table = new Table(name);

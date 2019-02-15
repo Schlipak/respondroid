@@ -107,7 +107,7 @@ export const standardColors = {
 };
 
 export const palette = {
-  primary: standardColors.indigo.light,
+  primary: standardColors.teal.dark,
   accent: standardColors.pink.accent,
 };
 
