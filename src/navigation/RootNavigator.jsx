@@ -6,7 +6,7 @@ import AppBar from '../components/AppBar';
 
 import HomeScreen from '../screens/HomeScreen';
 import FooBarScreen from '../screens/FooBarScreen';
-import ItemsScreen from '../screens/ItemsScreen';
+import SwipableItemList from '../components/SwipableItemList';
 import LoginScreen from '../screens/LoginScreen';
 
 import theme from '../constants/theme';
@@ -32,7 +32,6 @@ export default createStackNavigator(
   {
     Home: { screen: WrapWithThemeProvider(HomeScreen) },
     FooBar: { screen: WrapWithThemeProvider(FooBarScreen) },
-    Items: { screen: WrapWithThemeProvider(ItemsScreen) },
     Login: { screen: WrapWithThemeProvider(LoginScreen) },
     Preferences: { screen: WrapWithThemeProvider(PreferencesScreen)},
     TypeView: { screen: WrapWithThemeProvider(TypeView)},

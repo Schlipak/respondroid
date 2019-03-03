@@ -12,6 +12,7 @@ import { selectApi } from '../ducks/api';
 import { connectApi } from '../middlewares/Api/thunks';
 import { printDate } from '../utils/date';
 import { selectMenu, setMenu } from '../ducks/menu';
+import SwipableItemList from '../components/SwipableItemList';
 
 const styles = StyleSheet.create({
   content: {
@@ -108,22 +109,41 @@ class LoginScreen extends Component {
           {type.fields.Description}
         </Subheading>
         {
-          list.map(item => (
-            <View style={{
-              display: 'flex', justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', margin: 10,
-            }}
-            >
-              <Button
-                style={{ margin: 4, width: '100%' }}
-                mode="outlined"
-                onPress={() => {}}
-              >
-                {type.fields.Name}
-                {' '}
-                <Text style={{ fontSize: 10 }}>{printDate(item.fields.CreatedAt, 'at')}</Text>
-              </Button>
-            </View>
-          ))
+          list.length > 0 && (
+            <SwipableItemList
+              list={list}
+              parser={(it, index) => ({
+                index,
+                key: `${index}`,
+                title: it.fields.Name,
+                onClickLeft: (item) => { console.log(`YOU CLICKED LEFT ON ITEM ${item.key}`); },
+                leftLabel: {
+                  text: 'Save',
+                  bg: 'green',
+                  color: 'black',
+                },
+                swipeLeftLabel: {
+                  text: 'Share',
+                  bg: 'blue',
+                  color: 'white',
+                },
+                onSwipeLeft: (item) => { console.log(`SwipeLeft on item ${item.key}`); },
+                onClickRight: (item) => { console.log(`YOU CLICKED RIGHT ON ITEM ${item.key}`); },
+                rightLabel: {
+                  text: 'Destroy',
+                  color: 'white',
+                  bg: 'crimson',
+                },
+                onSwipeRight: (item) => { console.log(`SwipeRight on item ${item.key}`); },
+                swipeRightLabel: {
+                  text: 'Upload',
+                  bg: 'orange',
+                  color: 'red',
+                },
+                description: printDate(it.fields.CreatedAt, 'at'),
+              })}
+            />
+          )
         }
       </KeyboardAvoidingView>
     );

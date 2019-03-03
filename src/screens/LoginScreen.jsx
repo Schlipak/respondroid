@@ -97,9 +97,6 @@ class LoginScreen extends Component {
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         <Image source={AirtableLogo} />
         <Headline style={styles.headline}>Sign in to Airtable</Headline>
-        <Text>
-          {JSON.stringify(this.props.api)}
-        </Text>
         <View style={styles.inputContainer}>
           <TextInput
             disabled={this.props.api.connected}
