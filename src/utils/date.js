@@ -72,7 +72,7 @@ export function printDateFr(date, hoursPrefix, year = false) {
       append = `${d.getHours()}h${d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes()}`;
     }
     if (year) {
-      append += ' ' + d.getFullYear();
+      append += ` ${d.getFullYear()}`;
     }
     return `${DAYS_FR[d.getDay()]} ${d.getDate()} ${MONTHS_FR[d.getMonth()]} ${hoursPrefix || ''} ${append}`;
   } catch (e) {

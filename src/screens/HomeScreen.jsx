@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
 import PropType from 'prop-types';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import {
+  Image, StyleSheet, Text, View,
+} from 'react-native';
 import {
   Button,
   Divider, Headline, Paragraph, Title,
 } from 'react-native-paper';
 import LottieView from 'lottie-react-native';
+import { connect } from 'react-redux';
 import BookIcon from '../../assets/bookIcon.png';
 
 import CheckAnimation from '../../assets/check_animation.json';
 import { selectApi } from '../ducks/api';
-import { connect } from 'react-redux';
 import UserHomeScreen from './UserHomeScreen';
 
 const styles = StyleSheet.create({
@@ -29,11 +31,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const dispatcher = (dispatch) => ({
+const dispatcher = dispatch => ({
 
 });
 
-const extractor = (state) => ({
+const extractor = state => ({
   api: selectApi(state),
 });
 
@@ -55,14 +57,20 @@ class HomeScreen extends Component {
   preview = (icon, text, left = true) => {
     if (left) {
       return (
-        <View style={{ display: 'flex', flexDirection: 'row', marginTop: 5, alignItems: 'center' }}>
+        <View style={{
+          display: 'flex', flexDirection: 'row', marginTop: 5, alignItems: 'center',
+        }}
+        >
           <Image source={icon} style={{ width: 64, height: 64, padding: 5 }} />
           <Paragraph style={{ padding: 5, textAlign: 'center', flex: 1 }}>{text}</Paragraph>
         </View>
       );
     }
     return (
-      <View style={{ display: 'flex', flexDirection: 'row', marginTop: 5, alignItems: 'center' }}>
+      <View style={{
+        display: 'flex', flexDirection: 'row', marginTop: 5, alignItems: 'center',
+      }}
+      >
         <Paragraph style={{ padding: 5, textAlign: 'center', flex: 1 }}>{text}</Paragraph>
         <Image source={icon} style={{ width: 64, height: 64, padding: 5 }} />
       </View>
@@ -83,11 +91,15 @@ class HomeScreen extends Component {
         <Paragraph>
           Kanbord is a powerful tool. Design your own solutions !
         </Paragraph>
-        <View style={{ marginTop: 5, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View style={{
+          marginTop: 5, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+        }}
+        >
           <Button
             style={{ flex: 1 }}
-            mode={'contained'}
-            onPress={() => navigation.navigate('Login')}>
+            mode="contained"
+            onPress={() => navigation.navigate('Login')}
+          >
             Subscribe
           </Button>
           <Text style={{ flex: 1, textAlign: 'center' }}>
@@ -95,34 +107,15 @@ class HomeScreen extends Component {
           </Text>
           <Button
             style={{ flex: 1 }}
-            mode={'contained'}
-            onPress={() => navigation.navigate('Login')}>
+            mode="contained"
+            onPress={() => navigation.navigate('Login')}
+          >
             Login
           </Button>
         </View>
         {this.preview(BookIcon, 'Create any Object you want. Memo, Event, Task, Project, Reading Notes...')}
         {this.preview(BookIcon, 'Program custom behaviors and views for each.', false)}
         {this.preview(BookIcon, 'Empower yourself and save time daily')}
-        {/* <LottieView */}
-        {/* ref={animation => (this.animation = animation)} */}
-        {/* style={styles.animation} */}
-        {/* source={CheckAnimation} */}
-        {/* loop={looping} */}
-        {/* /> */}
-        {/* <View> */}
-        {/* <Text>Loop</Text> */}
-        {/* <Checkbox */}
-        {/* status={looping ? 'checked' : 'unchecked'} */}
-        {/* onPress={() => this.setState({ looping: !looping })} */}
-        {/* /> */}
-        {/* </View> */}
-        {/* <Button mode="text" onPress={this.startAnimation} compact> */}
-        {/* Start */}
-        {/* </Button> */}
-        {/* <Divider style={styles.divider} /> */}
-        {/* <Button mode="contained" onPress={() => navigation.navigate('Login')}> */}
-        {/* Connect */}
-        {/* </Button> */}
       </View>
     );
   }

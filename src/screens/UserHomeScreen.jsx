@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
 import PropType from 'prop-types';
 import { connect } from 'react-redux';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import {
+  Image, StyleSheet, Text, View,
+} from 'react-native';
 import {
   Button,
   Divider, Headline, Paragraph, Subheading, Title,
 } from 'react-native-paper';
+import * as dotprop from 'dot-prop-immutable';
 import BookIcon from '../../assets/bookIcon.png';
 
 import { selectApi } from '../ducks/api';
 import Table from '../middlewares/Api/Table';
-import * as dotprop from 'dot-prop-immutable';
 
 const styles = StyleSheet.create({
   content: {
@@ -28,11 +30,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const dispatcher = (dispatch) => ({
+const dispatcher = dispatch => ({
 
 });
 
-const extractor = (state) => ({
+const extractor = state => ({
   api: selectApi(state),
 });
 
@@ -54,14 +56,20 @@ class UserHomeScreen extends Component {
   preview = (icon, text, left = true) => {
     if (left) {
       return (
-        <View style={{ display: 'flex', flexDirection: 'row', marginTop: 5, alignItems: 'center' }}>
+        <View style={{
+          display: 'flex', flexDirection: 'row', marginTop: 5, alignItems: 'center',
+        }}
+        >
           <Image source={icon} style={{ width: 64, height: 64, padding: 5 }} />
           <Paragraph style={{ padding: 5, textAlign: 'center', flex: 1 }}>{text}</Paragraph>
         </View>
       );
     }
     return (
-      <View style={{ display: 'flex', flexDirection: 'row', marginTop: 5, alignItems: 'center' }}>
+      <View style={{
+        display: 'flex', flexDirection: 'row', marginTop: 5, alignItems: 'center',
+      }}
+      >
         <Paragraph style={{ padding: 5, textAlign: 'center', flex: 1 }}>{text}</Paragraph>
         <Image source={icon} style={{ width: 64, height: 64, padding: 5 }} />
       </View>
@@ -77,7 +85,7 @@ class UserHomeScreen extends Component {
     const Types = dotprop.get(api, 'tables.Types.content');
     const Database = dotprop.get(api, 'tables.Database.content');
     if (!Meta || !Types || !Database) {
-      return <View><Text>Almost there...</Text></View>
+      return <View><Text>Almost there...</Text></View>;
     }
     const letters = [];
     return (
@@ -90,8 +98,8 @@ class UserHomeScreen extends Component {
             if (a.fields.Name < b.fields.Name) { return -1; }
             if (a.fields.Name > b.fields.Name) { return 1; }
             return 0;
-          }).map(type => {
-            let addLetter = !letters.includes(type.fields.Name[0].toLowerCase());
+          }).map((type) => {
+            const addLetter = !letters.includes(type.fields.Name[0].toLowerCase());
             if (addLetter) {
               letters.push(type.fields.Name[0].toLowerCase());
             }
@@ -102,7 +110,7 @@ class UserHomeScreen extends Component {
                 }
                 <Button
                   style={{ margin: 4 }}
-                  mode={'outlined'}
+                  mode="outlined"
                   onPress={() => navigation.navigate('ListItemView', { title: type.fields.Name, type })}
                 >
                   {type.fields.Name}

@@ -13,8 +13,8 @@ export default function createSelector(name, selector) {
       const selectedData = selector(...args);
       return selectedData;
     } catch (e) {
-      console.error('Selection failed in ' + name, e.message);
+      // console.error('Selection failed in ' + name, e.message);
       return fakeSelector;
     }
-  }
+  };
 }

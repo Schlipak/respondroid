@@ -35,7 +35,7 @@ const extractor = state => ({
 });
 
 const dispatcher = dispatch => ({
-  setMenu: (menu) => dispatch(setMenu(menu)),
+  setMenu: menu => dispatch(setMenu(menu)),
 });
 
 class LoginScreen extends Component {
@@ -60,7 +60,7 @@ class LoginScreen extends Component {
       this.props.setMenu({
         visible: true,
         name: 'ListItemView',
-        destinations: [{ screen: 'TypeView', args: { title: type.fields.Name, type }}],
+        destinations: [{ screen: 'TypeView', args: { title: type.fields.Name, type } }],
         icon: 'extension',
       });
     }
@@ -85,26 +85,45 @@ class LoginScreen extends Component {
     }
     const { Database } = api.tables;
     const list = Database.content.filter(it => it.fields.Type.includes(type.id));
-    const { editable, locked, classMethods, methods } = type.fields.Fields;
+    const {
+      editable, locked, classMethods, methods,
+    } = type.fields.Fields;
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
-        <Title style={styles.headline}>{type.fields.Name}</Title>
+        <View style={{
+          display: 'flex', justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', margin: 4,
+        }}
+        >
+          <Title style={styles.headline}>
+            {type.fields.Name}
+          </Title>
+          <Button
+            mode="contained"
+            onPress={() => navigation.navigate('TypeView', { title: type.fields.Name, type })}
+          >
+            About
+          </Button>
+        </View>
         <Subheading>
           {type.fields.Description}
         </Subheading>
         {
-          list.map(item => {
-            return (
-              <View style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', margin: 10 }}>
-                <Button mode={'contained'} onPress={() => {}}>
-                  {item.fields.Name}
-                </Button>
-                <Text>
-                  {printDate(item.fields.CreatedAt, 'at')}
-                </Text>
-              </View>
-            )
-          })
+          list.map(item => (
+            <View style={{
+              display: 'flex', justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', margin: 10,
+            }}
+            >
+              <Button
+                style={{ margin: 4, width: '100%' }}
+                mode="outlined"
+                onPress={() => {}}
+              >
+                {type.fields.Name}
+                {' '}
+                <Text style={{ fontSize: 10 }}>{printDate(item.fields.CreatedAt, 'at')}</Text>
+              </Button>
+            </View>
+          ))
         }
       </KeyboardAvoidingView>
     );

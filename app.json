@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Kanbord",
-    "slug": "kanbord-dev-v19.2.14",
+    "slug": "kanbord-dev",
     "privacy": "public",
     "sdkVersion": "32.0.0",
     "platforms": [

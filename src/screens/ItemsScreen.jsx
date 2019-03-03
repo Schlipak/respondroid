@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { RefreshControl, StyleSheet, View } from 'react-native';
+import {
+  RefreshControl, StyleSheet, View, Dimensions,
+} from 'react-native';
 import { List, TouchableRipple } from 'react-native-paper';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -18,7 +20,7 @@ const styles = StyleSheet.create({
   listButtons: {
     height: '100%',
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: standardColors.white.accent,
   },
@@ -34,7 +36,7 @@ const DEMO_ITEM_COUNT = 16;
 export default class ItemsScreen extends Component {
   constructor() {
     super();
-
+    this.width = Dimensions.get('window').width;
     this.state = {
       height: 0,
       refreshing: false,
@@ -121,8 +123,39 @@ export default class ItemsScreen extends Component {
             name={done ? 'close' : 'check'}
           />
         </TouchableRipple>
+        <TouchableRipple
+          onPress={() => {
+            rowMap[key].closeRow();
+
+            setTimeout(() => {
+              items[index].done = !done;
+              this.setState({ items });
+            }, 500);
+          }}
+          style={[
+            styles.listButton,
+            {
+              backgroundColor: done ? standardColors.red.light : standardColors.green.light,
+              width,
+            },
+          ]}
+          rippleColor={theme.colors.overlay.light}
+        >
+          <MaterialCommunityIcons
+            size={24}
+            color={standardColors.white.light}
+            name={done ? 'close' : 'check'}
+          />
+        </TouchableRipple>
       </View>
     );
+  }
+
+  onSwipeValueChange = (data) => {
+    const { height } = this.state;
+    if (data.value < -this.width + height) {
+      console.log(`${data.value} < ${this.width} + ${height}`);
+    }
   }
 
   render() {
@@ -143,9 +176,10 @@ export default class ItemsScreen extends Component {
         renderItem={rowData => this.renderItem(rowData)}
         renderHiddenItem={(rowData, rowMap) => this.renderHiddenItem(rowData, rowMap)}
         leftOpenValue={height}
+        rightOpenValue={-height}
         closeOnRowBeginSwipe
-        disableLeftSwipe
         useFlatList
+        onSwipeValueChange={this.onSwipeValueChange}
       />
     );
   }
