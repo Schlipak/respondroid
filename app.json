@@ -27,7 +27,11 @@
       "bundleIdentifier": "eu.epitech.respondroid"
     },
     "android": {
-      "package": "eu.epitech.respondroid"
+      "package": "eu.epitech.respondroid",
+      "permissions": [
+        "CAMERA",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "description": "Kanbord is a student project."
   }

@@ -38,7 +38,7 @@ export default createStackNavigator(
     ListItemView: { screen: WrapWithThemeProvider(ListItemView)},
   },
   {
-    initialRouteName: 'Login',
+    initialRouteName: 'Home',
     navigationOptions: ({ navigation }) => ({
       header: <AppBar navigation={navigation} />,
     }),

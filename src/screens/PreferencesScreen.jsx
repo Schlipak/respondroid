@@ -2,19 +2,21 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropType from 'prop-types';
 import {
-  StyleSheet, View, KeyboardAvoidingView, TextInput as NativeTextInput, Image
+  StyleSheet,
+  View,
+  KeyboardAvoidingView,
+  TextInput as NativeTextInput,
+  TouchableOpacity,
+  Image,
 } from 'react-native';
 import {
-  Headline, TextInput, Button, HelperText, Text, Title,
+  Headline, TextInput, Button, HelperText, Title, Text
 } from 'react-native-paper';
-import AirtableLogo from '../../assets/AirtableLogo.jpg';
+import { ImagePicker } from 'expo';
 import { selectApi } from '../ducks/api';
-import { connectApi } from '../middlewares/Api/thunks';
 
 const styles = StyleSheet.create({
-  content: {
-
-  },
+  content: {},
   headline: {
     marginBottom: 5,
   },
@@ -41,18 +43,33 @@ class LoginScreen extends Component {
 
   constructor() {
     super();
-    this.state = {};
+    this.state = {
+      filePath: '',
+    };
   }
+
+  chooseFile = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3]
+    });
+    if (!result.cancelled) {
+      this.setState({
+        filePath: result.uri,
+      });
+    }
+  };
 
   render() {
     const { navigation } = this.props;
-    const type = navigation.getParam('type');
+    const uri = this.state.filePath;
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         <Title style={styles.headline}>Application preferences</Title>
-        <Text>
-          {JSON.stringify(type)}
-        </Text>
+        <Button title="Choose File" onPress={this.chooseFile}>
+          Choose File
+        </Button>
+        <Image source={{ uri }} style={{width: 200, height: 200}} />
       </KeyboardAvoidingView>
     );
   }

@@ -94,17 +94,10 @@ class AppDrawer extends React.Component {
         label={'Logout'}
         icon={'face'}
         style={{ textColor: 'crimson' }}
-        onPress={() => { navigation.navigate('Items'); }}
-      />,
-      <Drawer.Item
-        label={'Logout'}
-        icon={'face'}
-        style={{ textColor: 'crimson' }}
         onPress={() => { this.props.disconnect().then(() => {
           navigation.navigate('Home');
         })}}
       />,
-      ...tables,
       <Drawer.Item
         label={'Preferences'}
         icon={'cake'}
