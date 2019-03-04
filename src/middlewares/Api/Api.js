@@ -26,6 +26,10 @@ class Api {
     return this.internal.table(name);
   }
 
+  update(table, id, next) {
+    return this.internal.update(table, id, next);
+  }
+
   sync(item) {
     return this.internal.sync(item);
   }

@@ -14,6 +14,7 @@ import {
 } from 'react-native-paper';
 import { ImagePicker } from 'expo';
 import { selectApi } from '../ducks/api';
+import { saveUserProfilePicture } from '../ducks/user';
 
 const styles = StyleSheet.create({
   content: {},
@@ -34,9 +35,10 @@ const extractor = (state) => ({
 });
 
 const dispatcher = (dispatch) => ({
+  changeProfilePicture: (id, b64img) => dispatch(saveUserProfilePicture(id, b64img)),
 });
 
-class LoginScreen extends Component {
+class PreferencesScreen extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
   };
@@ -48,32 +50,62 @@ class LoginScreen extends Component {
     };
   }
 
+  saveProfilePic = () => {
+    const { api } = this.props;
+    const row = api.tables.Meta.content.find(it => it.fields.Name === 'Picture');
+    if (row && row.id) {
+      this.props.changeProfilePicture(row.id, `data:image/png;base64,${this.state.data}`)
+    }
+  };
+
+  toBase64 = (file, callback) => {
+    const reader = new FileReader();
+    console.log('FileReader started job on file');
+    reader.onloadend = () => {
+      callback(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
   chooseFile = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
-      aspect: [4, 3]
+      mediaTypes: 'Images',
+      aspect: [1,1],
+      quality: 0.25,
+      base64: true,
     });
     if (!result.cancelled) {
       this.setState({
         filePath: result.uri,
+        data: result.base64,
       });
     }
   };
 
   render() {
-    const { navigation } = this.props;
-    const uri = this.state.filePath;
+    const img = this.state.data && `data:image/png;base64,${this.state.data}`;
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
-        <Title style={styles.headline}>Application preferences</Title>
+        <View style={{
+          display: 'flex',
+          flexDirection: 'row',
+          width: '100%',
+          alignItems: 'center',
+        }}>
+          <Title style={styles.headline}>Application preferences</Title>
+          <Button onPress={this.saveProfilePic}>
+            Save
+          </Button>
+        </View>
         <Button title="Choose File" onPress={this.chooseFile}>
           Choose File
         </Button>
-        <Image source={{ uri }} style={{width: 200, height: 200}} />
+        <Image source={{ uri: img }} style={{width: 200, height: 200}} />
       </KeyboardAvoidingView>
     );
   }
 }
 
-const ConnectedLoginScreen = connect(extractor, dispatcher)(LoginScreen);
-export default ConnectedLoginScreen;
+const ConnectedPreferencesScreen = connect(extractor, dispatcher)(PreferencesScreen);
+export default ConnectedPreferencesScreen;

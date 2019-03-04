@@ -62,6 +62,22 @@ export default class AirtableApi {
     });
   }
 
+  update(table, id, next) {
+    return new Promise((resolve) => {
+      console.log(`Started update in table ${table} on item ${id} to change keys ${Object.keys(next)}`)
+      this.base(table).update(id, next, (err, record) => {
+        if (err) {
+          console.log(`ERROR WHEN UPDATING ITEM ${id}: ${err}`)
+        } else {
+          console.log(`UPDATE SUCCESS ${id}: ${record}`)
+        }
+        resolve({
+          err, record
+        });
+      });
+    });
+  }
+
   sync(item) {
     console.log('DEBUG SYNC', item);
     return new Promise(resolve => {

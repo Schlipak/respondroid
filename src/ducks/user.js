@@ -22,6 +22,17 @@ export const TYPES = {
   // connectedToApi: `${PREFIX}/connectedToApi`,
 };
 
+export function saveUserProfilePicture(id, b64Image) {
+  return function (dispatch, getState, { api }) {
+    console.log(`Started save pp for ID ${id}`);
+    api.update('Meta', id, {
+      Value: b64Image,
+    }).then(res => {
+      console.log(`Save pp ok: ${res.error}, record.Value is ${res.record && res.record.fields.Value}`);
+    });
+  }
+}
+
 export const connectedToApi = createAction(TYPES.connectedToApi, 'types');
 function onConnectedToApi(state, args) {
   let next = changeState(state, 'types', args.types);
