@@ -47,8 +47,8 @@ class LoginScreen extends Component {
 
   constructor() {
     super();
-    this.myapikey = '';
-    this.baseid = '';
+    this.myapikey = 'keyvjAQrGLMU55S4c';
+    this.baseid = 'appnUR8P3LDjMeZjC';
     this.state = {
       email: this.baseid,
       emailError: false,

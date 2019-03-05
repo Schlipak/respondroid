@@ -25,12 +25,18 @@ export const TYPES = {
 export function saveUserProfilePicture(id, b64Image) {
   return function (dispatch, getState, { api }) {
     console.log(`Started save pp for ID ${id}`);
-    api.update('Meta', id, {
+    return api.update('Meta', id, {
       Value: b64Image,
-    }).then(res => {
-      console.log(`Save pp ok: ${res.error}, record.Value is ${res.record && res.record.fields.Value}`);
     });
-  }
+  };
+}
+
+export function saveUsername(id, username) {
+  return function (dispatch, getState, { api }) {
+    return api.update('Meta', id, {
+      Value: username,
+    });
+  };
 }
 
 export const connectedToApi = createAction(TYPES.connectedToApi, 'types');

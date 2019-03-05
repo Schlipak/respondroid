@@ -10,6 +10,7 @@ export default class AirtableApi {
     this.form = form;
     this.apiKey = form.airtableID;
     this.baseID = form.baseID;
+    this.tables = {};
     if (form.remember) {
       // cookie.save('airtableID', form.airtableID, { path: '/' });
       // cookie.save('baseID', form.baseID, { path: '/' });
@@ -34,12 +35,14 @@ export default class AirtableApi {
     this.baseID = undefined;
     this.airtable = undefined;
     this.base = undefined;
+    this.tables = {};
     return Promise.resolve(true);
   }
 
   table(name, max=50) {
     return new Promise(resolve => {
       const table = new Table(name);
+      this.tables[name] = table;
       this.base(name).select({
         maxRecords: max,
       }).eachPage((records, fetchNextPage) => {
@@ -70,6 +73,15 @@ export default class AirtableApi {
           console.log(`ERROR WHEN UPDATING ITEM ${id}: ${err}`)
         } else {
           console.log(`UPDATE SUCCESS ${id}: ${record}`)
+        }
+        if (!err && record) {
+          this.tables[table].content = this.tables[table].content.map(it => {
+            if (it.id === id) {
+              const toKeep = Object.keys(record.fields);
+              return new Item(APIS.Airtable, record.id, record.fields, toKeep);
+            }
+            return it;
+          });
         }
         resolve({
           err, record
