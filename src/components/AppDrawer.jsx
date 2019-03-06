@@ -15,6 +15,14 @@ import Table from '../middlewares/Api/Table';
 import * as dotprop from 'dot-prop-immutable';
 import { disconnectApi } from '../middlewares/Api/thunks';
 
+function makeEntry(label, iconName, callback) {
+  return <Drawer.Item
+    label={label}
+    icon={iconName}
+    onPress={callback}
+  />;
+}
+
 const styles = StyleSheet.create({
   drawerContent: {
     flex: 1,
@@ -90,20 +98,15 @@ class AppDrawer extends React.Component {
       );
     });
     const connectedLinks = [
-      <Drawer.Item
-        label={'Logout'}
-        icon={'face'}
-        style={{ textColor: 'crimson' }}
-        onPress={() => { this.props.disconnect().then(() => {
+      makeEntry('Friends', 'group', () => navigation.navigate('Friends')),
+      makeEntry('Create', 'book', () => navigation.navigate('TypeEditor')),
+      makeEntry('Preferences', 'cake', () => navigation.navigate('Preferences')),
+      makeEntry('Logout', 'block', () => {
+        const { disconnect } = this.props;
+        disconnect().then(() => {
           navigation.navigate('Home');
-        })}}
-      />,
-      <Drawer.Item
-        label={'Preferences'}
-        icon={'cake'}
-        active={routeName === 'Preferences'}
-        onPress={() => navigation.navigate('Preferences')}
-      />,
+        });
+      }),
     ];
 
     return (

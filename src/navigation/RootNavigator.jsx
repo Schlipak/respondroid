@@ -13,6 +13,11 @@ import theme from '../constants/theme';
 import PreferencesScreen from '../screens/PreferencesScreen';
 import TypeView from '../screens/TypeView';
 import ListItemView from '../screens/ListItemView';
+import HowToConnect from '../screens/HowToConnect';
+import TypeEditor from '../screens/TypeEditor';
+import ItemEditor from '../screens/ItemEditor';
+import Friends from '../screens/Friends';
+import FriendsMap from '../screens/FriendsMap';
 
 const WrapWithThemeProvider = (ChildComponent) => {
   const ScreenWithThemeHOC = props => (
@@ -31,7 +36,11 @@ const WrapWithThemeProvider = (ChildComponent) => {
 export default createStackNavigator(
   {
     Home: { screen: WrapWithThemeProvider(HomeScreen) },
-    FooBar: { screen: WrapWithThemeProvider(FooBarScreen) },
+    HowToConnect: { screen: WrapWithThemeProvider(HowToConnect) },
+    TypeEditor: { screen:  WrapWithThemeProvider(TypeEditor) },
+    ItemEditor: { screen:  WrapWithThemeProvider(ItemEditor) },
+    Friends: { screen:  WrapWithThemeProvider(Friends) },
+    FriendsMap: { screen:  WrapWithThemeProvider(FriendsMap) },
     Login: { screen: WrapWithThemeProvider(LoginScreen) },
     Preferences: { screen: WrapWithThemeProvider(PreferencesScreen)},
     TypeView: { screen: WrapWithThemeProvider(TypeView)},
