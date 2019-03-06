@@ -162,6 +162,11 @@ class AppDrawer extends React.Component {
                 onPress={() => navigation.navigate('Home')}
               />
               {
+                !api.connected && makeEntry('How to connect', 'help', () => {
+                  navigation.navigate('HowToConnect');
+                })
+              }
+              {
                 api.connected && connectedLinks
               }
             </Drawer.Section>
