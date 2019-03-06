@@ -11,6 +11,7 @@ import AirtableLogo from '../../assets/AirtableLogo.jpg';
 import { selectApi } from '../ducks/api';
 import { connectApi } from '../middlewares/Api/thunks';
 import { selectMenu, setMenu } from '../ducks/menu';
+import Container from '../components/Container';
 
 const styles = StyleSheet.create({
   content: {
@@ -34,7 +35,7 @@ const extractor = state => ({
 });
 
 const dispatcher = dispatch => ({
-  setMenu: (menu) => dispatch(setMenu(menu)),
+  setMenu: menu => dispatch(setMenu(menu)),
 });
 
 class LoginScreen extends Component {
@@ -66,7 +67,7 @@ class LoginScreen extends Component {
     this.onUpdate();
   }
 
-  displayFields = (fields, bg='aliceblue') => fields.map(field => (
+  displayFields = (fields, bg = 'aliceblue') => fields.map(field => (
     <View style={{ padding: 8, backgroundColor: bg }}>
       <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Subheading>
@@ -82,7 +83,7 @@ class LoginScreen extends Component {
     </View>
   ));
 
-  displayMethods = (methods, bg='lightgreen') => methods.map(method => (
+  displayMethods = (methods, bg = 'lightgreen') => methods.map(method => (
     <View style={{ padding: 8, backgroundColor: bg }}>
       <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Subheading>
@@ -93,7 +94,7 @@ class LoginScreen extends Component {
         </Text>
       </View>
       <Text>
-        {method.description || "No description available"}
+        {method.description || 'No description available'}
       </Text>
     </View>
   ))
@@ -113,7 +114,12 @@ class LoginScreen extends Component {
     const methods = type.fields.Fields.methods;
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
-        <Title style={styles.headline}>Description</Title>
+        <Container>
+          <Title style={styles.headline}>Description</Title>
+          <Button onPress={() => navigation.navigate('TypeEditor', { title: `${type.fields.Name} Editor`, type })}>
+            Edit
+          </Button>
+        </Container>
         <Subheading>
           {type.fields.Description}
         </Subheading>

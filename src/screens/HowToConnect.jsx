@@ -153,11 +153,13 @@ class PreferencesScreen extends Component {
           </Button>
         </View>
         {
-          this.state.updated && <Text>
+          this.state.updated && (
+            <Text>
             Saved !
-          </Text>
+            </Text>
+          )
         }
-        <Image source={{ uri: img || Table.getFieldByParentName(this.props.api.tables.Meta, 'Picture' )}} style={{ width: 64, height: 64 }} />
+        <Image source={{ uri: img || Table.getFieldByParentName(this.props.api.tables.Meta, 'Picture') }} style={{ width: 64, height: 64 }} />
         <Button title="Change Profile Picture" onPress={this.chooseFile}>
           Choose File
         </Button>
@@ -169,7 +171,7 @@ class PreferencesScreen extends Component {
             mode="outlined"
             error={undefined}
             onChangeText={text => this.setState({ username: text || '' })}
-            onBlur={() => { return true; }}
+            onBlur={() => true}
             render={props => (
               <NativeTextInput {...props} />
             )}

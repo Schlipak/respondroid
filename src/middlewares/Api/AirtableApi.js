@@ -23,7 +23,7 @@ export default class AirtableApi {
       apiKey: this.apiKey,
     });
     this.base = this.airtable.base(this.baseID);
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => {
         resolve(this.base);
       }, 100);
@@ -39,17 +39,15 @@ export default class AirtableApi {
     return Promise.resolve(true);
   }
 
-  table(name, max=50) {
-    return new Promise(resolve => {
+  table(name, max = 50) {
+    return new Promise((resolve) => {
       const table = new Table(name);
       this.tables[name] = table;
       this.base(name).select({
         maxRecords: max,
       }).eachPage((records, fetchNextPage) => {
         // This function (`page`) will get called for each page of records.
-        console.log('records: ', records);
-        records.forEach(function (record) {
-          console.log('Retrieved', record);
+        records.forEach((record) => {
           const toKeep = Object.keys(record.fields);
           table.add(new Item(APIS.Airtable, record.id, record.fields, toKeep));
         });
@@ -58,8 +56,8 @@ export default class AirtableApi {
         // If there are more records, `page` will get called again.
         // If there are no more records, `done` will get called.
         fetchNextPage();
-      }, (err) => {
-        if (err) { console.error(err); }
+      }, () => {
+        // TODO: Add error handling
         resolve(table);
       });
     });
@@ -67,15 +65,9 @@ export default class AirtableApi {
 
   update(table, id, next) {
     return new Promise((resolve) => {
-      console.log(`Started update in table ${table} on item ${id} to change keys ${Object.keys(next)}`)
       this.base(table).update(id, next, (err, record) => {
-        if (err) {
-          console.log(`ERROR WHEN UPDATING ITEM ${id}: ${err}`)
-        } else {
-          console.log(`UPDATE SUCCESS ${id}: ${record}`)
-        }
         if (!err && record) {
-          this.tables[table].content = this.tables[table].content.map(it => {
+          this.tables[table].content = this.tables[table].content.map((it) => {
             if (it.id === id) {
               const toKeep = Object.keys(record.fields);
               return new Item(APIS.Airtable, record.id, record.fields, toKeep);
@@ -84,15 +76,14 @@ export default class AirtableApi {
           });
         }
         resolve({
-          err, record
+          err, record,
         });
       });
     });
   }
 
   sync(item) {
-    console.log('DEBUG SYNC', item);
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.base('Types').update(item.id, Item.serialize(item), (err, record) => {
         if (err) {
           resolve(err, null);

@@ -3,19 +3,18 @@ import { connect } from 'react-redux';
 import PropType from 'prop-types';
 import {
   StyleSheet,
-  View,
   KeyboardAvoidingView,
-  TextInput as NativeTextInput,
-  TouchableOpacity,
-  Image,
 } from 'react-native';
 import {
-  Headline, TextInput, Button, HelperText, Title, Text,
+  Title, Text, Button,
 } from 'react-native-paper';
-import { ImagePicker } from 'expo';
 import { selectApi } from '../ducks/api';
-import { saveUsername, saveUserProfilePicture } from '../ducks/user';
-import Table from '../middlewares/Api/Table';
+import * as dotprop from 'dot-prop-immutable';
+import { change, saveItem, selectEditor, setMeta } from '../ducks/editor';
+import { selectLoaders } from '../ducks/Loaders';
+import Container from '../components/Container';
+import LottieView from 'lottie-react-native';
+import LoaderLottie from '../../assets/loader.json';
 
 const styles = StyleSheet.create({
   content: {},
@@ -33,11 +32,14 @@ const styles = StyleSheet.create({
 
 const extractor = state => ({
   api: selectApi(state),
+  editor: selectEditor(state),
+  editorLoader: selectLoaders(state, 'editor'),
 });
 
 const dispatcher = dispatch => ({
-  changeProfilePicture: (id, b64img) => dispatch(saveUserProfilePicture(id, b64img)),
-  changeUsername: (id, username) => dispatch(saveUsername(id, username)),
+  setMeta: (field, value) => dispatch(setMeta(field, value)),
+  save: () => dispatch(saveItem()),
+  change: (field, value) => dispatch(change(field, value)),
 });
 
 class TypeEditorScreen extends Component {
@@ -47,137 +49,46 @@ class TypeEditorScreen extends Component {
 
   constructor() {
     super();
-    this.state = {
-      filePath: '',
-      updated: false,
-    };
-  }
-
-  saveProfilePic = () => {
-    const { api } = this.props;
-    const row = api.tables.Meta.content.find(it => it.fields.Name === 'Picture');
-    if (row && row.id) {
-      this.setState({
-        updating: true,
-        updated: false,
-      });
-      this.props.changeProfilePicture(row.id, `data:image/png;base64,${this.state.data}`)
-        .then((err, record) => {
-          if (!err) {
-            this.setState({
-              updated: true,
-              updating: false,
-            });
-            setTimeout(() => {
-              this.setState({
-                updated: false,
-              });
-            }, 2000);
-          }
-        });
-    }
-  };
-
-  saveUsername = () => {
-    const { api } = this.props;
-    const row = api.tables.Meta.content.find(it => it.fields.Name === 'Creator');
-    if (row && row.id) {
-      this.setState({
-        updating: true,
-        updated: false,
-      });
-      this.props.changeUsername(row.id, this.state.username).then((err, record) => {
-        if (!err) {
-          this.setState({
-            updated: true,
-            updating: false,
-          });
-          setTimeout(() => {
-            this.setState({
-              updated: false,
-            });
-          }, 2000);
-        }
-      });
-    }
+    this.state = {};
   }
 
   save = () => {
-    if (this.state.filePath) {
-      this.saveProfilePic();
-    }
-    if (this.state.username) {
-      this.saveUsername();
-    }
-  };
-
-  toBase64 = (file, callback) => {
-    const reader = new FileReader();
-    console.log('FileReader started job on file');
-    reader.onloadend = () => {
-      callback(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  chooseFile = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      mediaTypes: 'Images',
-      aspect: [1, 1],
-      quality: 0.25,
-      base64: true,
-    });
-    if (!result.cancelled) {
-      this.setState({
-        filePath: result.uri,
-        data: result.base64,
-      });
-    }
+    this.props.save();
   };
 
   render() {
-    const img = this.state.data && `data:image/png;base64,${this.state.data}`;
+    const { navigation, editorLoader, editor } = this.props;
+    const type = navigation.getParam('type');
+    if (!this.props.editor.item && type) {
+      this.props.setMeta('table', 'Types');
+      this.props.setMeta('item', type);
+    }
+    const fields = dotprop.get(type, 'fields', {});
+    if (editorLoader) {
+      const loaderDisplay = (
+        <Container style={{textAlign: 'center'}} column>
+          <LottieView
+            source={LoaderLottie}
+            autoPlay
+            loop
+            style={{width: 200, height: 200}}
+          />
+          <Text>Loading...</Text>
+        </Container>
+      );
+      return loaderDisplay;
+    }
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
-        <View style={{
-          display: 'flex',
-          flexDirection: 'row',
-          width: '100%',
-          alignItems: 'center',
-        }}
-        >
-          <Title style={styles.headline}>Type Editor</Title>
-          <Button onPress={this.save} disabled={this.state.updating}>
-            { this.state.updating ? 'Saving... ' : 'Save' }
-          </Button>
-        </View>
-        {
-          this.state.updated && <Text>
-            Saved !
-          </Text>
-        }
-        <Image source={{ uri: img || Table.getFieldByParentName(this.props.api.tables.Meta, 'Picture' )}} style={{ width: 64, height: 64 }} />
-        <Button title="Change Profile Picture" onPress={this.chooseFile}>
-          Choose File
+        <Title>
+          {fields.Name}
+        </Title>
+        <Button onPress={this.save}>
+          Save
         </Button>
-        <View style={styles.inputContainer}>
-          <TextInput
-            disabled={this.state.updating}
-            label="Username"
-            value={this.state.username && this.state.username.length >= 0 ? this.state.username : Table.getFieldByParentName(this.props.api.tables.Meta, 'Creator')}
-            mode="outlined"
-            error={undefined}
-            onChangeText={text => this.setState({ username: text || '' })}
-            onBlur={() => { return true; }}
-            render={props => (
-              <NativeTextInput {...props} />
-            )}
-          />
-          <HelperText type="error" visible={false}>
-            Invalid Key
-          </HelperText>
-        </View>
+        <Text>
+          {JSON.stringify(editor)}
+        </Text>
       </KeyboardAvoidingView>
     );
   }

@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropType from 'prop-types';
 import {
-  StyleSheet, View, KeyboardAvoidingView, TextInput as NativeTextInput, Image
+  StyleSheet, View, KeyboardAvoidingView, TextInput as NativeTextInput, Image,
 } from 'react-native';
 import {
-  Headline, TextInput, Button, HelperText, Text,
+  Headline, TextInput, Button, HelperText,
 } from 'react-native-paper';
 import AirtableLogo from '../../assets/AirtableLogo.jpg';
 import { selectApi } from '../ducks/api';
@@ -29,11 +29,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const extractor = (state) => ({
+const extractor = state => ({
   api: selectApi(state),
 });
 
-const dispatcher = (dispatch) => ({
+const dispatcher = dispatch => ({
   connectToApi: (e, p) => dispatch(connectApi({
     baseID: e,
     airtableID: p,
@@ -57,14 +57,6 @@ class LoginScreen extends Component {
     };
   }
 
-  componentDidMount() {
-    this.toto = true;
-  }
-
-  componentWillUnmount() {
-    this.toto = false;
-  }
-
   validateEmail = () => {
     const { email } = this.state;
     this.setState({
@@ -84,8 +76,8 @@ class LoginScreen extends Component {
     this.validatePassword();
 
     this.props.connectToApi(this.state.email, this.state.password).then(() => {
-      this.props.navigation.navigate('Home')
-    })
+      this.props.navigation.navigate('Home');
+    });
   };
 
   render() {

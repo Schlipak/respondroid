@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  listBlock: (dir) => ({
+  listBlock: dir => ({
     flexDirection: 'row',
     height: '100%',
     justifyContent: dir === 'left' ? 'flex-start' : 'flex-end',
@@ -265,7 +265,9 @@ export default class SwipableItemList extends Component {
   };
 
   render() {
-    const { height, width, refreshing, items } = this.state;
+    const {
+      height, width, refreshing, items,
+    } = this.state;
     return (
       <SwipeListView
         refreshControl={(

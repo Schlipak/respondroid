@@ -9,10 +9,12 @@ import {
   Divider, Headline, Paragraph, Subheading, Title,
 } from 'react-native-paper';
 import * as dotprop from 'dot-prop-immutable';
-import BookIcon from '../../assets/bookIcon.png';
-
+import Container from '../components/Container';
+import LottieView from 'lottie-react-native';
+import LoaderLottie from '../../assets/loader.json';
 import { selectApi } from '../ducks/api';
 import Table from '../middlewares/Api/Table';
+import addKeys from '../utils/addKeys';
 
 const styles = StyleSheet.create({
   content: {
@@ -78,14 +80,25 @@ class UserHomeScreen extends Component {
 
   render() {
     const { navigation, api } = this.props;
+    const loaderDisplay = (
+      <Container style={{ textAlign: 'center' }} column>
+        <LottieView
+          source={LoaderLottie}
+          autoPlay
+          loop
+          style={{ width: 200, height: 200 }}
+        />
+        <Text>Loading...</Text>
+      </Container>
+    );
     if (!api || !api.connected) {
-      return <View style={styles.content}><Title>Loading...</Title></View>;
+      return loaderDisplay;
     }
-    const Meta = dotprop.get(api, 'tables.Meta.content');
-    const Types = dotprop.get(api, 'tables.Types.content');
-    const Database = dotprop.get(api, 'tables.Database.content');
+    const Meta = addKeys(dotprop.get(api, 'tables.Meta.content'));
+    const Types = addKeys(dotprop.get(api, 'tables.Types.content'));
+    const Database = addKeys(dotprop.get(api, 'tables.Database.content'));
     if (!Meta || !Types || !Database) {
-      return <View><Text>Almost there...</Text></View>;
+      return loaderDisplay;
     }
     const letters = [];
     return (
@@ -98,13 +111,13 @@ class UserHomeScreen extends Component {
             if (a.fields.Name < b.fields.Name) { return -1; }
             if (a.fields.Name > b.fields.Name) { return 1; }
             return 0;
-          }).map((type) => {
+          }).map((type, index) => {
             const addLetter = !letters.includes(type.fields.Name[0].toLowerCase());
             if (addLetter) {
               letters.push(type.fields.Name[0].toLowerCase());
             }
             return (
-              <View>
+              <View key={index}>
                 {
                   addLetter && <Subheading style={{ fontWeight: 'bold' }}>{type.fields.Name[0].toUpperCase()}</Subheading>
                 }

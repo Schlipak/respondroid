@@ -7,20 +7,23 @@ import {
   Provider as PaperProvider, Drawer, Card, Text, TouchableRipple, Button,
 } from 'react-native-paper';
 
+import { connect } from 'react-redux';
+import * as dotprop from 'dot-prop-immutable';
 import theme from '../constants/theme';
 import { standardColors } from '../constants/colors';
-import { connect } from 'react-redux';
 import { selectApi } from '../ducks/api';
 import Table from '../middlewares/Api/Table';
-import * as dotprop from 'dot-prop-immutable';
 import { disconnectApi } from '../middlewares/Api/thunks';
+import version from '../version.js';
 
 function makeEntry(label, iconName, callback) {
-  return <Drawer.Item
-    label={label}
-    icon={iconName}
-    onPress={callback}
-  />;
+  return (
+    <Drawer.Item
+      label={label}
+      icon={iconName}
+      onPress={callback}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
@@ -65,11 +68,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const dispatcher = (dispatch) => ({
+const dispatcher = dispatch => ({
   disconnect: () => dispatch(disconnectApi()),
 });
 
-const extractor = (state) => ({
+const extractor = state => ({
   api: selectApi(state),
 });
 
@@ -87,16 +90,14 @@ class AppDrawer extends React.Component {
     const { routeName } = routes[index];
 
     const types = dotprop.get(api, 'tables.Types.content') || [];
-    const tables = types.map(t => {
-      return (
-        <Drawer.Item
-          label={t.fields.Name}
-          icon={'folder'}
-          active={routeName === t.fields.Name}
-          onPress={() => navigation.navigate('TypeHome', { title: t.fields.Name, type: t })}
-        />
-      );
-    });
+    const tables = types.map(t => (
+      <Drawer.Item
+        label={t.fields.Name}
+        icon="folder"
+        active={routeName === t.fields.Name}
+        onPress={() => navigation.navigate('TypeHome', { title: t.fields.Name, type: t })}
+      />
+    ));
     const connectedLinks = [
       makeEntry('Friends', 'group', () => navigation.navigate('Friends')),
       makeEntry('Create', 'book', () => navigation.navigate('TypeEditor')),
@@ -133,7 +134,9 @@ class AppDrawer extends React.Component {
                         {Table.getFieldByParentName(api.tables.Meta, 'Creator')}
                       </Text>
                       <Text style={styles.cardEmail}>
-                        Connected to {Table.getFieldByParentName(api.tables.Meta, 'AppName')}
+                        Connected to
+                        {' '}
+                        {Table.getFieldByParentName(api.tables.Meta, 'AppName')}
                       </Text>
                     </View>
                   )
@@ -154,7 +157,7 @@ class AppDrawer extends React.Component {
             </TouchableRipple>
           </View>
           <ScrollView>
-            <Drawer.Section title="Menu">
+            <Drawer.Section title={`Kanbord ${version}`}>
               <Drawer.Item
                 label="Home"
                 icon="home"
@@ -175,7 +178,7 @@ class AppDrawer extends React.Component {
       </PaperProvider>
     );
   }
-};
+}
 
 AppDrawer.propTypes = {
   navigation: PropTypes.objectOf(PropTypes.any).isRequired,

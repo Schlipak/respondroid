@@ -46,7 +46,7 @@ const USERS = {
     name: 'michael',
     fullName: 'Michael Halfon',
     jetLag: -1,
-  }
+  },
 };
 
 export default USERS;

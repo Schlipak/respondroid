@@ -29,7 +29,7 @@ class Item {
     if (item.apiSource === APIS.Airtable) {
       if (item.fields.Fields) {
         const removable = ['editable', 'locked', 'methods', 'classMethods'];
-        removable.forEach(key => {
+        removable.forEach((key) => {
           fieldsCopy[key] = fieldsCopy[key].filter(attr => attr._remove === undefined || attr._remove !== true);
         });
         // fieldsCopy.locked = fieldsCopy.locked.filter(attr => attr._remove === undefined || attr._remove !== true);
@@ -41,7 +41,7 @@ class Item {
         next.Fields = serialized;
       }
     }
-    Object.keys(next).forEach(key => {
+    Object.keys(next).forEach((key) => {
       if (!item.toKeep.find(it => it === key)) {
         delete next[key];
       }

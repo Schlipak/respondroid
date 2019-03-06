@@ -12,9 +12,8 @@ export default class Table {
     let found;
     let e;
     try {
-      found = table.content.find(record => {
+      found = table.content.find((record) => {
         if (record.id !== undefined && record.id === id) {
-
           return true;
         }
         return false;
@@ -29,7 +28,7 @@ export default class Table {
     let found;
     let e;
     try {
-      found = table.content.find(record => {
+      found = table.content.find((record) => {
         if (record.fields.Name !== undefined && record.fields.Name === name) {
           return true;
         }

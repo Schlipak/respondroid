@@ -24,49 +24,37 @@ const AIRTABLE_TABLES = {
     name: 'Tasks',
     label: 'Felix\'s Tasks',
     user: USERS.Felix,
-    filter: (task) => {
-      return task.Owner && task.Owner.id === USERS.Felix.airtableId;
-    }
+    filter: task => task.Owner && task.Owner.id === USERS.Felix.airtableId,
   },
   RomainsTasks: {
     name: 'Tasks',
     label: 'Romain\'s Tasks',
     user: USERS.Romain,
-    filter: (task) => {
-      return task.Owner && task.Owner.id === USERS.Romain.airtableId;
-    }
+    filter: task => task.Owner && task.Owner.id === USERS.Romain.airtableId,
   },
   ClarasTasks: {
     name: 'Tasks',
     label: 'Clara\'s Tasks',
     user: USERS.Clara,
-    filter: (task) => {
-      return task.Owner && task.Owner.id === USERS.Clara.airtableId;
-    }
+    filter: task => task.Owner && task.Owner.id === USERS.Clara.airtableId,
   },
   StacysTasks: {
     name: 'Tasks',
     label: 'Stacy\'s Tasks',
     user: USERS.Stacy,
-    filter: (task) => {
-      return task.Owner && task.Owner.id === USERS.Stacy.airtableId;
-    }
+    filter: task => task.Owner && task.Owner.id === USERS.Stacy.airtableId,
   },
   ThomasTasks: {
     name: 'Tasks',
     label: 'Thomas\'s Tasks',
     user: USERS.Thomas,
-    filter: (task) => {
-      return task.Owner && task.Owner.id === USERS.Thomas.airtableId;
-    }
+    filter: task => task.Owner && task.Owner.id === USERS.Thomas.airtableId,
   },
   MichaelTasks: {
     name: 'Tasks',
     label: 'Michael\'s Tasks',
     user: USERS.Michael,
-    filter: (task) => {
-      return task.Owner && task.Owner.id === USERS.Michael.airtableId;
-    }
+    filter: task => task.Owner && task.Owner.id === USERS.Michael.airtableId,
   },
 };
 
@@ -92,8 +80,7 @@ export const TABLES_ID = {
   Releases: 'tblC5x2F9OuoaZ9rH/viwg9uRhbzDrisLQZ',
   Comments: 'tbl3ZjiZ54JIvCzb4/viwfvkkmlQEV6gaz5',
   TaskHistory: 'tblRc9qmNZ96tztkd/viwJ8IZNcNTv0eOjB',
-  Notifications: 'tblCmnkENDQNxOg37/viwK2eZDOszByVUn7'
+  Notifications: 'tblCmnkENDQNxOg37/viwK2eZDOszByVUn7',
 };
 
 export default AIRTABLE_TABLES;
-

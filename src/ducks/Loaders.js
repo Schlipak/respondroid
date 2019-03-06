@@ -9,9 +9,7 @@ const initialState = {
 };
 
 // Selectors
-export const selectLoaders = createSelector('selectLoaders', (state, name) => {
-  return state.loaders.knownLoaders[name];
-});
+export const selectLoaders = createSelector('selectLoaders', (state, name) => state.loaders.knownLoaders[name]);
 
 // Actions
 export const PREFIX = 'ducks/loaders';
@@ -44,9 +42,9 @@ function onSetLoading(state, action) {
 // Reducer
 export default function reducer(state = initialState, action = {}) {
   switch (action.type) {
-    case TYPES.newLoader: return onNewLoader(state, action);
-    case TYPES.removeLoader: return onRemoveLoader(state, action);
-    case TYPES.setLoading: return onSetLoading(state, action);
-    default: return state;
+  case TYPES.newLoader: return onNewLoader(state, action);
+  case TYPES.removeLoader: return onRemoveLoader(state, action);
+  case TYPES.setLoading: return onSetLoading(state, action);
+  default: return state;
   }
 }

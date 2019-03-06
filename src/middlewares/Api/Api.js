@@ -10,12 +10,12 @@ class Api {
     if (form.airtableID !== undefined) {
       this.internal = new AirtableApi(form);
       return new Promise((resolve) => {
-        this.internal.connect().then(response => {
+        this.internal.connect().then((response) => {
           resolve(response);
         });
       });
     }
-    throw new Error("Unsupported API or invalid parameters");
+    throw new Error('Unsupported API or invalid parameters');
   }
 
   disconnect() {

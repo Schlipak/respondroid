@@ -1,4 +1,6 @@
-import { error, info, success, warning } from 'react-notification-system-redux';
+import {
+  error, info, success, warning,
+} from 'react-notification-system-redux';
 
 class Notify {
   setup(dispatch, getState) {

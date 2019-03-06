@@ -5,8 +5,6 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import AppBar from '../components/AppBar';
 
 import HomeScreen from '../screens/HomeScreen';
-import FooBarScreen from '../screens/FooBarScreen';
-import SwipableItemList from '../components/SwipableItemList';
 import LoginScreen from '../screens/LoginScreen';
 
 import theme from '../constants/theme';
@@ -37,14 +35,14 @@ export default createStackNavigator(
   {
     Home: { screen: WrapWithThemeProvider(HomeScreen) },
     HowToConnect: { screen: WrapWithThemeProvider(HowToConnect) },
-    TypeEditor: { screen:  WrapWithThemeProvider(TypeEditor) },
-    ItemEditor: { screen:  WrapWithThemeProvider(ItemEditor) },
-    Friends: { screen:  WrapWithThemeProvider(Friends) },
-    FriendsMap: { screen:  WrapWithThemeProvider(FriendsMap) },
+    TypeEditor: { screen: WrapWithThemeProvider(TypeEditor) },
+    ItemEditor: { screen: WrapWithThemeProvider(ItemEditor) },
+    Friends: { screen: WrapWithThemeProvider(Friends) },
+    FriendsMap: { screen: WrapWithThemeProvider(FriendsMap) },
     Login: { screen: WrapWithThemeProvider(LoginScreen) },
-    Preferences: { screen: WrapWithThemeProvider(PreferencesScreen)},
-    TypeView: { screen: WrapWithThemeProvider(TypeView)},
-    ListItemView: { screen: WrapWithThemeProvider(ListItemView)},
+    Preferences: { screen: WrapWithThemeProvider(PreferencesScreen) },
+    TypeView: { screen: WrapWithThemeProvider(TypeView) },
+    ListItemView: { screen: WrapWithThemeProvider(ListItemView) },
   },
   {
     initialRouteName: 'Home',
