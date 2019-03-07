@@ -2,26 +2,28 @@ import React, { Component } from 'react';
 import PropType from 'prop-types';
 import { connect } from 'react-redux';
 import {
-  Image, StyleSheet, Text, View,
+  Image, ScrollView, StyleSheet, Text, View,
 } from 'react-native';
 import {
   Button,
   Divider, Headline, Paragraph, Subheading, Title,
 } from 'react-native-paper';
 import * as dotprop from 'dot-prop-immutable';
-import Container from '../components/Container';
 import LottieView from 'lottie-react-native';
+import Container from '../components/Container';
 import LoaderLottie from '../../assets/loader.json';
 import { selectApi } from '../ducks/api';
 import Table from '../middlewares/Api/Table';
 import addKeys from '../utils/addKeys';
+import { setMenu } from '../ducks/menu';
 
 const styles = StyleSheet.create({
   content: {
     // flex: 1,
     // alignItems: 'center',
     // justifyContent: 'center',
-    padding: 20,
+    padding: 15,
+    height: '100%',
   },
   divider: {
     height: 20,
@@ -33,7 +35,7 @@ const styles = StyleSheet.create({
 });
 
 const dispatcher = dispatch => ({
-
+  setMenu: (key, value) => dispatch(setMenu(key, value)),
 });
 
 const extractor = state => ({
@@ -47,9 +49,20 @@ class UserHomeScreen extends Component {
 
   constructor() {
     super();
-
     this.state = { looping: false };
   }
+
+  goTo = (screen, type = {}) => {
+    const { navigation } = this.props;
+    if (type.fields) {
+      this.props.setMenu('title', type.fields.Name);
+      this.props.setMenu('type', type);
+    } else {
+      this.props.setMenu('title', 'Create type');
+      this.props.setMenu('type', {});
+    }
+    navigation.navigate(screen);
+  };
 
   startAnimation = () => {
     this.animation.play();
@@ -102,7 +115,7 @@ class UserHomeScreen extends Component {
     }
     const letters = [];
     return (
-      <View style={styles.content}>
+      <ScrollView style={styles.content}>
         <Title style={{ color: 'crimson' }}>
           Welcome
         </Title>
@@ -124,7 +137,7 @@ class UserHomeScreen extends Component {
                 <Button
                   style={{ margin: 4 }}
                   mode="outlined"
-                  onPress={() => navigation.navigate('ListItemView', { title: type.fields.Name, type })}
+                  onPress={() => this.goTo('ListItemView', type)}
                 >
                   {type.fields.Name}
                 </Button>
@@ -132,7 +145,16 @@ class UserHomeScreen extends Component {
             );
           })
         }
-      </View>
+        <Divider />
+        <Button
+          style={{ margin: 4 }}
+          mode="contained"
+          onPress={() => this.goTo('TypeEditor')}
+        >
+          Create
+        </Button>
+        <Divider />
+      </ScrollView>
     );
   }
 }

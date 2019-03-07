@@ -14,16 +14,11 @@ const extractor = state => ({
 });
 
 class AppBar extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
   render() {
-    const { navigation } = this.props;
+    const { navigation, menu } = this.props;
     const { state } = navigation;
     const { routeName } = state;
-    const title = navigation.getParam('title', routeName);
+    const { title } = menu;
     return (
       <Appbar.Header>
         {routeName === 'Home' ? (

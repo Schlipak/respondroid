@@ -5,7 +5,7 @@ import {
   StyleSheet, View, KeyboardAvoidingView, TextInput as NativeTextInput, Image,
 } from 'react-native';
 import {
-  Headline, TextInput, Button, HelperText, Text, Title, Subheading,
+  Headline, TextInput, Button, HelperText, Text, Title, Subheading, Divider,
 } from 'react-native-paper';
 import AirtableLogo from '../../assets/AirtableLogo.jpg';
 import { selectApi } from '../ducks/api';
@@ -51,36 +51,12 @@ class LoginScreen extends Component {
     this.state = {};
   }
 
-  onUpdate = () => {
-    const { navigation, menu } = this.props;
-    const type = navigation.getParam('type');
-    if (!menu || !type) {
-      return;
-    }
-    if (menu.name !== 'ListItemView') {
-      this.props.setMenu({
-        visible: true,
-        name: 'ListItemView',
-        destinations: [{ screen: 'TypeView', args: { title: type.fields.Name, type } }],
-        icon: 'extension',
-      });
-    }
-  }
-
-  componentDidMount() {
-    this.onUpdate();
-  }
-
-  componentDidUpdate() {
-    this.onUpdate();
-  }
-
   render() {
     const {
       email, emailError, password, passwordError,
     } = this.state;
-    const { navigation, api } = this.props;
-    const type = navigation.getParam('type');
+    const { navigation, api, menu } = this.props;
+    const { type } = menu;
     if (!type) {
       return <View><Text>ERROR: No type provided</Text></View>;
     }
@@ -108,6 +84,10 @@ class LoginScreen extends Component {
         <Subheading>
           {type.fields.Description}
         </Subheading>
+        <Button mode={'outlined'} style={{ width: '100%', marginBottom: 5 }} onPress={() => {}}>
+          Create {type.fields.Name}
+        </Button>
+        <Divider />
         {
           list.length > 0 && (
             <SwipableItemList

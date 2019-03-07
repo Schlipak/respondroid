@@ -66,18 +66,7 @@ export default class AirtableApi {
   update(table, id, next) {
     return new Promise((resolve) => {
       this.base(table).update(id, next, (err, record) => {
-        if (!err && record) {
-          this.tables[table].content = this.tables[table].content.map((it) => {
-            if (it.id === id) {
-              const toKeep = Object.keys(record.fields);
-              return new Item(APIS.Airtable, record.id, record.fields, toKeep);
-            }
-            return it;
-          });
-        }
-        resolve({
-          err, record,
-        });
+        resolve({ err, record });
       });
     });
   }
@@ -85,10 +74,9 @@ export default class AirtableApi {
   sync(item) {
     return new Promise((resolve) => {
       this.base('Types').update(item.id, Item.serialize(item), (err, record) => {
-        if (err) {
-          resolve(err, null);
-        }
-        resolve(null, record);
+        const toKeep = Object.keys(record.fields);
+        const nextItem = new Item(APIS.Airtable, record.id, record.fields, toKeep);
+        resolve({ err, item: nextItem });
       });
     });
   }

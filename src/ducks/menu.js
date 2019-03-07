@@ -8,10 +8,8 @@ import changeState, { removeState } from '../utils/changeState';
 
 const PREFIX = '/ducks/menu';
 const initialState = {
-  icon: '',
-  name: '',
-  visible: false,
-  destinations: [],
+  title: '',
+  type: undefined,
 };
 
 // Selectors
@@ -21,13 +19,9 @@ export const TYPES = {
   setMenu: `${PREFIX}/setMenu`,
 };
 
-export const setMenu = createAction(TYPES.setMenu, 'menu');
-function onSetMenu(state, args) {
-  console.warn('SetMENU to ', args.menu);
-  return {
-    ...state,
-    ...args.menu,
-  };
+export const setMenu = createAction(TYPES.setMenu, 'field', 'valueOrFunction');
+function onSetMenu(state, action) {
+  return changeState(state, action.field, action.valueOrFunction);
 }
 
 export default function reducer(state = initialState, { type, payload } = {}) {

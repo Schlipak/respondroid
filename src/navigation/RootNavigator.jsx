@@ -1,5 +1,5 @@
 import React from 'react';
-import { createStackNavigator } from 'react-navigation';
+import { createStackNavigator, createNavigator } from 'react-navigation';
 import { Provider as PaperProvider } from 'react-native-paper';
 
 import AppBar from '../components/AppBar';

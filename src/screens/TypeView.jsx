@@ -15,7 +15,7 @@ import Container from '../components/Container';
 
 const styles = StyleSheet.create({
   content: {
-
+    padding: 4,
   },
   headline: {
     marginBottom: 5,
@@ -35,7 +35,7 @@ const extractor = state => ({
 });
 
 const dispatcher = dispatch => ({
-  setMenu: menu => dispatch(setMenu(menu)),
+  setMenu: (key, value) => dispatch(setMenu(key, value)),
 });
 
 class LoginScreen extends Component {
@@ -48,24 +48,11 @@ class LoginScreen extends Component {
     this.state = {};
   }
 
-  onUpdate = () => {
-    const { navigation, menu } = this.props;
-    if (!menu) {
-      return;
-    }
-    if (menu.name && menu.name !== 'TypeView') {
-      this.props.setMenu({
-        visible: false,
-        name: 'TypeView',
-        destinations: [],
-        icon: '',
-      });
-    }
-  }
-
-  componentDidMount() {
-    this.onUpdate();
-  }
+  goTo = (screen, type) => {
+    const { navigation } = this.props;
+    this.props.setMenu('title', `${type.fields.Name} Editor`);
+    navigation.navigate(screen);
+  };
 
   displayFields = (fields, bg = 'aliceblue') => fields.map(field => (
     <View style={{ padding: 8, backgroundColor: bg }}>
@@ -97,14 +84,14 @@ class LoginScreen extends Component {
         {method.description || 'No description available'}
       </Text>
     </View>
-  ))
+  ));
 
   render() {
     const {
       email, emailError, password, passwordError,
     } = this.state;
-    const { navigation } = this.props;
-    const type = navigation.getParam('type');
+    const { navigation, menu } = this.props;
+    const { type } = menu;
     if (!type) {
       return <View><Text>ERROR: No type provided</Text></View>;
     }
@@ -116,7 +103,7 @@ class LoginScreen extends Component {
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         <Container>
           <Title style={styles.headline}>Description</Title>
-          <Button onPress={() => navigation.navigate('TypeEditor', { title: `${type.fields.Name} Editor`, type })}>
+          <Button mode={'contained'} onPress={() => this.goTo('TypeEditor', type)}>
             Edit
           </Button>
         </Container>
@@ -127,20 +114,20 @@ class LoginScreen extends Component {
           <Text>
             Editable fields
           </Text>
-          {this.displayFields(editable)}
+          {editable && this.displayFields(editable)}
         </View>
         <View>
           <Text style={{ color: 'crimson' }}>
             Locked fields
           </Text>
-          {this.displayFields(locked)}
+          {locked && this.displayFields(locked)}
         </View>
         <View>
           <Text>
             Class Methods
           </Text>
           {
-            (classMethods.length > 0 && this.displayMethods(classMethods)) || <Text>No class methods found</Text>
+            (classMethods && classMethods.length > 0 && this.displayMethods(classMethods)) || <Text>No class methods found</Text>
           }
         </View>
         <View>
@@ -148,7 +135,7 @@ class LoginScreen extends Component {
             Instance methods
           </Text>
           {
-            (methods.length > 0 && this.displayMethods(methods)) || <Text>No methods found</Text>
+            (methods && methods.length > 0 && this.displayMethods(methods)) || <Text>No methods found</Text>
           }
         </View>
       </KeyboardAvoidingView>

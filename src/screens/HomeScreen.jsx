@@ -107,7 +107,7 @@ class HomeScreen extends Component {
           </Text>
           <Button
             style={{ flex: 1 }}
-            mode="contained"
+            mode="outlined"
             onPress={() => navigation.navigate('Login')}
           >
             Login
