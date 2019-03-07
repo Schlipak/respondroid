@@ -107,8 +107,8 @@ export const standardColors = {
 };
 
 export const palette = {
-  primary: standardColors.teal.dark,
-  accent: standardColors.pink.accent,
+  primary: standardColors.blueGrey.dark,
+  accent: standardColors.blueGrey.accent,
 };
 
 export default {

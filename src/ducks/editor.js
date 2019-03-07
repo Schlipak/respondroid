@@ -6,6 +6,7 @@ import changeState from '../utils/changeState';
 import { newLoader, setLoading } from './Loaders';
 import { setItem } from './api';
 import { setMenu } from './menu';
+import FIELD_TYPES from '../constants/fieldTypes';
 
 const PREFIX = '/ducks/editor';
 const initialState = {
@@ -24,11 +25,21 @@ export const TYPES = {
   setMeta: `${PREFIX}/setMeta`,
   change: `${PREFIX}/change`,
   changeAttr: `${PREFIX}/changeAttr`,
+  addField: `${PREFIX}/addField`,
 };
 
 export const setMeta = createAction(TYPES.setMeta, 'field', 'valueOrFunction');
 function onSetMeta(state, action) {
   return changeState(state, action.field, action.valueOrFunction);
+}
+
+export const addField = createAction(TYPES.addField, 'category');
+function onAddField(state, action) {
+  return changeState(state, `item.fields.Fields.${action.category}`, fields => [...fields, {
+    name: '',
+    description: '',
+    type: FIELD_TYPES.string,
+  }]);
 }
 
 export const change = createAction(TYPES.change, 'field', 'valueOrFunction');
@@ -69,6 +80,7 @@ export default function reducer(state = initialState, { type, payload } = {}) {
   case TYPES.change: return onChange(state, payload);
   case TYPES.setMeta: return onSetMeta(state, payload);
   case TYPES.changeAttr: return onChangeAttr(state, payload);
+  case TYPES.addField: return onAddField(state, payload);
   default: return state;
   }
 }

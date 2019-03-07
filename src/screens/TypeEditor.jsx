@@ -6,11 +6,12 @@ import {
   KeyboardAvoidingView, View, ScrollView, Picker,
 } from 'react-native';
 import {
-  Title, Text, Button, TextInput, Subheading,
+  Title, Text, Button, TextInput, Headline, Divider, Subheading,
 } from 'react-native-paper';
 import { TextInput as NativeTextInput } from 'react-native';
 import { selectApi } from '../ducks/api';
 import {
+  addField,
   change, changeAttr, saveItem, selectEditor, setMeta,
 } from '../ducks/editor';
 import { selectLoaders } from '../ducks/Loaders';
@@ -18,7 +19,7 @@ import Container from '../components/Container';
 import Table from '../middlewares/Api/Table';
 import { selectMenu, setMenu } from '../ducks/menu';
 import LoaderPlaceholder from '../components/LoaderPlaceholder';
-import FIELD_TYPES from '../constants/fieldTypes';
+import TypeEditorField from '../components/TypeEditorField';
 
 const styles = StyleSheet.create({
   content: {
@@ -49,6 +50,7 @@ const dispatcher = dispatch => ({
   save: () => dispatch(saveItem()),
   change: (field, value) => dispatch(change(field, value)),
   changeAttr: (cat, idx, attr, val) => dispatch(changeAttr(cat, idx, attr, val)),
+  addField: (category) => dispatch(addField(category)),
 });
 
 class TypeEditorScreen extends Component {
@@ -88,46 +90,17 @@ class TypeEditorScreen extends Component {
     }
   };
 
-  displayFields = (fields, category, bg = 'aliceblue') => fields.map(( field, index ) => (
-    <View style={{ padding: 8, backgroundColor: bg }}>
-      <TextInput
-        value={field.name}
-        onChangeText={(text) => { this.props.changeAttr(category, index, 'name', text); }}
-        mode={'outlined'}
-        label={'Field Name'}
+  displayFields = (fields, category) => {
+    return fields.map((field, index) => (
+      <TypeEditorField
+        field={field}
+        index={index}
+        changeAttr={this.props.changeAttr}
+        category={category}
+        collapsed
       />
-      <TextInput
-        value={field.description}
-        onChangeText={(text) => { this.props.changeAttr(category, index, 'description', text); }}
-        mode={'outlined'}
-        label={'Field description'}
-      />
-      <Container>
-        <Subheading>
-          Type
-        </Subheading>
-        <Picker
-          selectedValue={field.type || FIELD_TYPES.TEXT}
-          style={{ flex: 1 }}
-          onValueChange={(itemValue, itemIndex) => {
-            this.props.changeAttr(category, index, 'type', itemValue);
-          }}
-          mode={'outlined'}
-        >
-          {
-            Object.keys(FIELD_TYPES).map(key => {
-              return <Picker.Item label={FIELD_TYPES[key]} value={FIELD_TYPES[key]} />
-            })
-          }
-        </Picker>
-        <Button icon={'bin'} color={'crimson'} mode={'outlined'} onPress={() => {
-          // Add ._remove to item
-        }}>
-          Delete
-        </Button>
-      </Container>
-    </View>
-  ));
+    ));
+  }
 
   displayMethods = (methods, bg = 'lightgreen') => methods.map(method => (
     <View style={{ padding: 8, backgroundColor: bg }}>
@@ -170,7 +143,7 @@ class TypeEditorScreen extends Component {
             <Title>
               {original && original.fields && original.fields.Name} {editor.synced === true ? 'Synced!' : ''}
             </Title>
-            <Button onPress={this.save}>
+            <Button onPress={this.save} mode={'outlined'}>
               Save
             </Button>
           </Container>
@@ -198,15 +171,33 @@ class TypeEditorScreen extends Component {
             )}
           />
           <View>
-            <Text>
-              Editable fields
-            </Text>
+            <Container style={{ padding: 5 }}>
+              <Headline style={{ fontWeight: 'bold' }}>
+                Editable fields
+              </Headline>
+              <Button icon={'add'} mode={'outlined'} onPress={() => {
+                this.props.addField('editable')
+              }}>
+                Add
+              </Button>
+            </Container>
             {editable && this.displayFields(editable, 'editable')}
           </View>
+          <Divider />
           <View>
-            <Text style={{ color: 'crimson' }}>
-              Locked fields
-            </Text>
+            <Container style={{ padding: 5 }}>
+              <Headline style={{
+                fontWeight: 'bold',
+                color: 'crimson'
+              }}>
+                Locked fields
+              </Headline>
+              <Button icon={'add'} mode={'outlined'} onPress={() => {
+                this.props.addField('locked')
+              }}>
+                Add
+              </Button>
+            </Container>
             {locked && this.displayFields(locked, 'locked')}
           </View>
           <View>
