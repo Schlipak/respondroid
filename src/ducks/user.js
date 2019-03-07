@@ -24,7 +24,7 @@ export function saveUserProfilePicture(id, b64Image) {
       Value: b64Image,
     }).then(({ err, record }) => {
       if (!err) { dispatch(setItem('Meta', record.id, record)); }
-      return Promise.resolve();
+      return Promise.resolve({ err, record });
     });
   };
 }
@@ -35,7 +35,7 @@ export function saveUsername(id, username) {
       Value: username,
     }).then(({ err, record }) => {
       if (!err) { dispatch(setItem('Meta', record.id, record)); }
-      return Promise.resolve(err, record);
+      return Promise.resolve({ err, record });
     });
   };
 }

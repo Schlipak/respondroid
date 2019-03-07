@@ -9,13 +9,10 @@ import {
   Divider, Headline, Paragraph, Subheading, Title,
 } from 'react-native-paper';
 import * as dotprop from 'dot-prop-immutable';
-import LottieView from 'lottie-react-native';
-import Container from '../components/Container';
-import LoaderLottie from '../../assets/loader.json';
 import { selectApi } from '../ducks/api';
-import Table from '../middlewares/Api/Table';
 import addKeys from '../utils/addKeys';
 import { setMenu } from '../ducks/menu';
+import LoaderPlaceholder from '../components/LoaderPlaceholder';
 
 const styles = StyleSheet.create({
   content: {
@@ -93,25 +90,14 @@ class UserHomeScreen extends Component {
 
   render() {
     const { navigation, api } = this.props;
-    const loaderDisplay = (
-      <Container style={{ textAlign: 'center' }} column>
-        <LottieView
-          source={LoaderLottie}
-          autoPlay
-          loop
-          style={{ width: 200, height: 200 }}
-        />
-        <Text>Loading...</Text>
-      </Container>
-    );
     if (!api || !api.connected) {
-      return loaderDisplay;
+      return <LoaderPlaceholder />
     }
     const Meta = addKeys(dotprop.get(api, 'tables.Meta.content'));
     const Types = addKeys(dotprop.get(api, 'tables.Types.content'));
     const Database = addKeys(dotprop.get(api, 'tables.Database.content'));
     if (!Meta || !Types || !Database) {
-      return loaderDisplay;
+      return <LoaderPlaceholder />
     }
     const letters = [];
     return (

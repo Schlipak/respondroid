@@ -15,16 +15,7 @@ import { selectApi } from '../ducks/api';
 import Table from '../middlewares/Api/Table';
 import { disconnectApi } from '../middlewares/Api/thunks';
 import version from '../version.js';
-
-function makeEntry(label, iconName, callback) {
-  return (
-    <Drawer.Item
-      label={label}
-      icon={iconName}
-      onPress={callback}
-    />
-  );
-}
+import { setMenu } from '../ducks/menu';
 
 const styles = StyleSheet.create({
   drawerContent: {
@@ -70,6 +61,7 @@ const styles = StyleSheet.create({
 
 const dispatcher = dispatch => ({
   disconnect: () => dispatch(disconnectApi()),
+  setMenu: (key, value) => dispatch(setMenu(key, value)),
 });
 
 const extractor = state => ({
@@ -80,6 +72,20 @@ class AppDrawer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+
+  makeEntry = (label, iconName, callback) => {
+    const { setMenu } = this.props;
+    return (
+      <Drawer.Item
+        label={label}
+        icon={iconName}
+        onPress={() => {
+          setMenu('title', label);
+          callback();
+        }}
+      />
+    );
   }
 
   render() {
@@ -99,10 +105,10 @@ class AppDrawer extends React.Component {
       />
     ));
     const connectedLinks = [
-      makeEntry('Friends', 'group', () => navigation.navigate('Friends')),
-      makeEntry('Create', 'book', () => navigation.navigate('TypeEditor')),
-      makeEntry('Preferences', 'cake', () => navigation.navigate('Preferences')),
-      makeEntry('Logout', 'block', () => {
+      this.makeEntry('Friends', 'group', () => navigation.navigate('Friends')),
+      this.makeEntry('Create', 'book', () => navigation.navigate('TypeEditor')),
+      this.makeEntry('Preferences', 'cake', () => navigation.navigate('Preferences')),
+      this.makeEntry('Logout', 'block', () => {
         const { disconnect } = this.props;
         disconnect().then(() => {
           navigation.navigate('Home');
@@ -165,7 +171,7 @@ class AppDrawer extends React.Component {
                 onPress={() => navigation.navigate('Home')}
               />
               {
-                !api.connected && makeEntry('How to connect', 'help', () => {
+                !api.connected && this.makeEntry('How to connect', 'help', () => {
                   navigation.navigate('HowToConnect');
                 })
               }

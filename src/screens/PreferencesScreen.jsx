@@ -16,6 +16,9 @@ import { ImagePicker } from 'expo';
 import { selectApi } from '../ducks/api';
 import { saveUsername, saveUserProfilePicture } from '../ducks/user';
 import Table from '../middlewares/Api/Table';
+import Container from '../components/Container';
+import LottieView from 'lottie-react-native';
+import LoaderLottie from '../../assets/success.json';
 
 const styles = StyleSheet.create({
   content: {},
@@ -62,7 +65,7 @@ class PreferencesScreen extends Component {
         updated: false,
       });
       this.props.changeProfilePicture(row.id, `data:image/png;base64,${this.state.data}`)
-        .then((err, record) => {
+        .then(({ err, record }) => {
           if (!err) {
             this.setState({
               updated: true,
@@ -70,9 +73,10 @@ class PreferencesScreen extends Component {
             });
             setTimeout(() => {
               this.setState({
+                filePath: '',
                 updated: false,
               });
-            }, 2000);
+            }, 2500);
           }
         });
     }
@@ -86,7 +90,7 @@ class PreferencesScreen extends Component {
         updating: true,
         updated: false,
       });
-      this.props.changeUsername(row.id, this.state.username).then((err, record) => {
+      this.props.changeUsername(row.id, this.state.username).then(({ err, record }) => {
         if (!err) {
           this.setState({
             updated: true,
@@ -140,29 +144,26 @@ class PreferencesScreen extends Component {
     const img = this.state.data && `data:image/png;base64,${this.state.data}`;
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
-        <View style={{
-          display: 'flex',
-          flexDirection: 'row',
-          width: '100%',
-          alignItems: 'center',
-        }}
-        >
-          <Title style={styles.headline}>Application preferences</Title>
-          <Button onPress={this.save} disabled={this.state.updating}>
+        <Container style={{ padding: 5 }}>
+          <Title style={styles.headline}>Preferences</Title>
+          <Button onPress={this.save} disabled={this.state.updating} mode={'contained'}>
             { this.state.updating ? 'Saving... ' : 'Save' }
           </Button>
-        </View>
-        {
-          this.state.updated && (
-            <Text>
-            Saved !
-            </Text>
-          )
+        </Container>
+        { this.state.updated && <Container style={{ width: '100%', textAlign: 'center', justifyContent: 'center' }}>
+          <LottieView
+            source={LoaderLottie}
+            autoPlay
+            style={{ width: 256 }}
+          />
+        </Container>
         }
-        <Image source={{ uri: img || Table.getFieldByParentName(this.props.api.tables.Meta, 'Picture') }} style={{ width: 64, height: 64 }} />
-        <Button title="Change Profile Picture" onPress={this.chooseFile}>
-          Choose File
-        </Button>
+        <Container style={{ paddingLeft: 32, paddingRight: 32 }}>
+          <Image source={{ uri: img || Table.getFieldByParentName(this.props.api.tables.Meta, 'Picture') }} style={{ width: 64, height: 64 }} />
+          <Button title="Change Profile Picture" onPress={this.chooseFile} mode={'outlined'} disabled={this.state.updating}>
+            Change Picture
+          </Button>
+        </Container>
         <View style={styles.inputContainer}>
           <TextInput
             disabled={this.state.updating}
