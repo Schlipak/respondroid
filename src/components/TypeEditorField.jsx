@@ -55,7 +55,7 @@ class TypeEditorField extends Component {
           label={'Field Name'}
         />
           <IconButton
-            mode={'outlined'}
+            mode={'contained'}
             icon={'close'}
             onPress={() => {
               this.setState({

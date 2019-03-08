@@ -11,7 +11,7 @@ import {
 import { TextInput as NativeTextInput } from 'react-native';
 import { selectApi } from '../ducks/api';
 import {
-  addField,
+  addField, reset,
   change, changeAttr, saveItem, selectEditor, setMeta,
 } from '../ducks/editor';
 import { selectLoaders } from '../ducks/Loaders';
@@ -51,6 +51,7 @@ const dispatcher = dispatch => ({
   change: (field, value) => dispatch(change(field, value)),
   changeAttr: (cat, idx, attr, val) => dispatch(changeAttr(cat, idx, attr, val)),
   addField: (category) => dispatch(addField(category)),
+  resetEditor: () => dispatch(reset()),
 });
 
 class TypeEditorScreen extends Component {
@@ -76,7 +77,7 @@ class TypeEditorScreen extends Component {
       this.props.setMeta('table', 'Types');
       this.props.setMeta('itemId', type.id);
       this.props.setMeta('item', type);
-    } else if (!item && type && !type.id) {
+    } else if (type && !type.id) {
       this.props.setMeta('table', 'Types');
       this.props.setMeta('isNew', true);
       this.props.setMeta('item', {
@@ -87,6 +88,12 @@ class TypeEditorScreen extends Component {
           Fields: '',
         },
       });
+    } else if (item && type) {
+      if (item.id !== type.id) {
+        this.props.setMeta('table', 'Types');
+        this.props.setMeta('itemId', type.id);
+        this.props.setMeta('item', type);
+      }
     }
   };
 
@@ -121,6 +128,11 @@ class TypeEditorScreen extends Component {
     </View>
   ));
 
+  cancel = () => {
+    this.props.resetEditor();
+    this.props.navigation.goBack();
+  };
+
   render() {
     const {
       navigation, editorLoader, editor, api, menu
@@ -143,7 +155,10 @@ class TypeEditorScreen extends Component {
             <Title>
               {original && original.fields && original.fields.Name} {editor.synced === true ? 'Synced!' : ''}
             </Title>
-            <Button onPress={this.save} mode={'outlined'}>
+            <Button onPress={this.cancel} mode={'contained'} color={'orange'}>
+              Cancel
+            </Button>
+            <Button onPress={this.save} mode={'contained'}>
               Save
             </Button>
           </Container>

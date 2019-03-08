@@ -26,7 +26,13 @@ export const TYPES = {
   change: `${PREFIX}/change`,
   changeAttr: `${PREFIX}/changeAttr`,
   addField: `${PREFIX}/addField`,
+  reset: `${PREFIX}/reset`,
 };
+
+export const reset = createAction(TYPES.reset);
+function onReset(state, action) {
+  return initialState;
+}
 
 export const setMeta = createAction(TYPES.setMeta, 'field', 'valueOrFunction');
 function onSetMeta(state, action) {
@@ -81,6 +87,7 @@ export default function reducer(state = initialState, { type, payload } = {}) {
   case TYPES.setMeta: return onSetMeta(state, payload);
   case TYPES.changeAttr: return onChangeAttr(state, payload);
   case TYPES.addField: return onAddField(state, payload);
+  case TYPES.reset: return onReset(state, payload);
   default: return state;
   }
 }
