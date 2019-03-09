@@ -20,6 +20,7 @@ import Table from '../middlewares/Api/Table';
 import { selectMenu, setMenu } from '../ducks/menu';
 import LoaderPlaceholder from '../components/LoaderPlaceholder';
 import TypeEditorField from '../components/TypeEditorField';
+import ConfirmButton from '../components/ConfirmButton';
 
 const styles = StyleSheet.create({
   content: {
@@ -242,6 +243,21 @@ class TypeEditorScreen extends Component {
             {
               (methods && methods.length > 0 && this.displayMethods(methods)) || <Text>No methods found</Text>
             }
+          </View>
+          <View>
+            <Container>
+              <Text style={{ color: 'crimson' }}>
+                Danger Zone
+              </Text>
+              <ConfirmButton
+                title={'Confirm'}
+                label={'Delete'}
+                color={'crimson'}
+                content={<Text>Are you sure you want to delete {type.fields.Name} ?</Text>}
+                onCancel={() => {}}
+                onConfirm={() => {}}
+              />
+            </Container>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
