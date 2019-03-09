@@ -55,7 +55,7 @@ class PreferencesScreen extends Component {
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         <View style={{
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: 'column',
           width: '100%',
           alignItems: 'center',
         }}

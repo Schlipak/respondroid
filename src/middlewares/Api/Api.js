@@ -26,6 +26,10 @@ class Api {
     return this.internal.table(name);
   }
 
+  create(table, item) {
+    return this.internal.create(table, item);
+  }
+
   update(table, id, next) {
     return this.internal.update(table, id, next);
   }

@@ -63,6 +63,20 @@ export default class AirtableApi {
     });
   }
 
+  create(table, item) {
+    return new Promise((resolve) => {
+      this.base(table)
+        .create(item, (err, record) => {
+          const toKeep = Object.keys(record.fields);
+          const nextItem = new Item(APIS.Airtable, record.id, record.fields, toKeep);
+          resolve({
+            err,
+            item: nextItem,
+          });
+        });
+    });
+  }
+
   update(table, id, next) {
     return new Promise((resolve) => {
       this.base(table).update(id, next, (err, record) => {

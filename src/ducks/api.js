@@ -26,6 +26,7 @@ export const selectCache = createSelector('selectCache', (state, name) => state.
 export const selectSync = createSelector('selectSync', state => state.api.sync);
 
 export const TYPES = {
+  addItem: `${PREFIX}/addItem`,
   connectedToApi: `${PREFIX}/connectedToApi`,
   tableContent: `${PREFIX}/tableContent`,
   cacheItem: `${PREFIX}/cacheItem`,
@@ -101,6 +102,11 @@ function onSetSync(state, args) {
   return changeState(state, 'sync', args.sync);
 }
 
+export const addItem = createAction(TYPES.addItem, 'type', 'id', 'object');
+function onAddItem(state, args) {
+  return changeState(state, `tables.${args.type}.content`, items => [...items, args.object]);
+}
+
 export const setItem = createAction(TYPES.setItem, 'type', 'id', 'object');
 function onSetItem(state, args) {
   return changeState(state, `tables.${args.type}.content`, items => items.map((it) => {
@@ -119,6 +125,7 @@ function onUnloadCache(state, args) {
 
 export default function reducer(state = initialState, { type, payload } = {}) {
   switch (type) {
+  case TYPES.addItem: return onAddItem(state, payload);
   case TYPES.connectedToApi: return onConnectedToApi(state, payload);
   case TYPES.tableContent: return onTableContent(state, payload);
   case TYPES.editItem: return onEditItem(state, payload);

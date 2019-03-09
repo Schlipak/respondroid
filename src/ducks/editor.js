@@ -4,7 +4,7 @@ import createSelector from '../utils/selector';
 import createAction from '../utils/actions';
 import changeState from '../utils/changeState';
 import { newLoader, setLoading } from './Loaders';
-import { setItem } from './api';
+import { addItem, setItem } from './api';
 import { setMenu } from './menu';
 import FIELD_TYPES from '../constants/fieldTypes';
 
@@ -31,7 +31,16 @@ export const TYPES = {
 
 export const reset = createAction(TYPES.reset);
 function onReset(state, action) {
-  return initialState;
+  console.log('Reset Store');
+  return {
+    isNew: false,
+    table: undefined,
+    itemId: undefined,
+    item: undefined,
+    modified: false,
+    error: undefined,
+    synced: undefined,
+  };
 }
 
 export const setMeta = createAction(TYPES.setMeta, 'field', 'valueOrFunction');
@@ -59,24 +68,21 @@ function onChangeAttr(state, action) {
   console.log(action);
   nextState = changeState(state,
     `item.fields.Fields.${action.category}`,
-    (cat) => {
-    return cat.map((attr, index) => {
+    cat => cat.map((attr, index) => {
       if (index === action.index) {
         if (typeof action.valueOrFunction === 'function') {
           return {
             ...attr,
             [action.field]: action.valueOrFunction(attr),
           };
-        } else {
-          return {
-            ...attr,
-            [action.field]: action.valueOrFunction,
-          }
         }
+        return {
+          ...attr,
+          [action.field]: action.valueOrFunction,
+        };
       }
       return attr;
-    });
-    });
+    }));
   console.log(nextState);
   return nextState;
 }
@@ -108,12 +114,53 @@ export function saveItem() {
         }
         dispatch(setLoading('editor', false));
         dispatch(setMenu('type', item));
-        return Promise.resolve({ err, item })
+        return Promise.resolve({ err, item });
       }).catch((err) => {
         dispatch(setMeta('error', err));
         dispatch(setLoading('editor', false));
       });
     }
     return Promise.resolve({ err: 'Invalid type' });
+  };
+}
+
+export function saveNewItem() {
+  return (dispatch, getState, { api }) => {
+    const state = getState();
+    const editor = selectEditor(state);
+    dispatch(newLoader('editor', true));
+    if (editor.table === 'Types') {
+      const it = {
+        ...editor.item.fields,
+      };
+      it.Fields = JSON.stringify(it.Fields);
+      return api.create(editor.table, it).then(({ err, item }) => {
+        if (err) {
+          dispatch(setMeta('error', JSON.stringify(err)));
+        } else {
+          dispatch(addItem('Types', item.id, item));
+          dispatch(setMeta('synced', true));
+        }
+        dispatch(setLoading('editor', false));
+        dispatch(setMenu('type', item));
+        return Promise.resolve({ err, item });
+      }).catch((err) => {
+        dispatch(setMeta('error', JSON.stringify(err)));
+        dispatch(setLoading('editor', false));
+      });
+    }
+    return Promise.resolve({ err: 'Invalid type' });
+  };
+}
+
+export function createType() {
+  return (dispatch, getState) => {
+    dispatch(reset());
+    dispatch(setMenu('type', {
+      fields: {
+        Name: 'NewType',
+      },
+    }));
+    return Promise.resolve({});
   };
 }

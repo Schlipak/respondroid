@@ -12,7 +12,7 @@ import { TextInput as NativeTextInput } from 'react-native';
 import { selectApi } from '../ducks/api';
 import {
   addField, reset,
-  change, changeAttr, saveItem, selectEditor, setMeta,
+  change, changeAttr, saveItem, selectEditor, setMeta, saveNewItem,
 } from '../ducks/editor';
 import { selectLoaders } from '../ducks/Loaders';
 import Container from '../components/Container';
@@ -48,6 +48,7 @@ const dispatcher = dispatch => ({
   setMenu: (field, value) => dispatch(setMenu(field, value)),
   setMeta: (field, value) => dispatch(setMeta(field, value)),
   save: () => dispatch(saveItem()),
+  saveNew: () => dispatch(saveNewItem()),
   change: (field, value) => dispatch(change(field, value)),
   changeAttr: (cat, idx, attr, val) => dispatch(changeAttr(cat, idx, attr, val)),
   addField: (category) => dispatch(addField(category)),
@@ -65,11 +66,23 @@ class TypeEditorScreen extends Component {
   }
 
   save = () => {
-    this.props.save().then(({err, item}) => {
-      if (!err) {
-        this.props.setMenu('title', `${item.fields.Name} Editor`);
-      }
-    });
+    const { editor, navigation } = this.props;
+    const { isNew } = editor;
+    if (isNew) {
+      this.props.saveNew().then(({ err, item }) => {
+        if (!err) {
+          this.props.resetEditor();
+          this.props.setMenu('type', item);
+          navigation.navigate('TypeView');
+        }
+      });
+    } else {
+      this.props.save().then(({ err, item }) => {
+        if (!err) {
+          this.props.setMenu('title', `${item.fields.Name} Editor`);
+        }
+      });
+    }
   };
 
   init = (item, type) => {
@@ -77,23 +90,22 @@ class TypeEditorScreen extends Component {
       this.props.setMeta('table', 'Types');
       this.props.setMeta('itemId', type.id);
       this.props.setMeta('item', type);
-    } else if (type && !type.id) {
+    } else if (!item && type && !type.id) {
       this.props.setMeta('table', 'Types');
       this.props.setMeta('isNew', true);
       this.props.setMeta('item', {
         id: 'create-item-id',
         fields: {
-          Name: '',
+          Name: 'NewType',
           Description: '',
-          Fields: '',
+          Fields: {
+            editable: [],
+            locked: [],
+            classMethods: [],
+            methods: [],
+          },
         },
       });
-    } else if (item && type) {
-      if (item.id !== type.id) {
-        this.props.setMeta('table', 'Types');
-        this.props.setMeta('itemId', type.id);
-        this.props.setMeta('item', type);
-      }
     }
   };
 
@@ -142,7 +154,7 @@ class TypeEditorScreen extends Component {
     const { type } = menu;
     this.init(item, type);
     if (editorLoader || !item) {
-      return <LoaderPlaceholder />
+      return <LoaderPlaceholder />;
     }
     const editable = item.fields.Fields.editable;
     const locked = item.fields.Fields.locked;

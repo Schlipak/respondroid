@@ -16,6 +16,7 @@ import Table from '../middlewares/Api/Table';
 import { disconnectApi } from '../middlewares/Api/thunks';
 import version from '../version.js';
 import { setMenu } from '../ducks/menu';
+import { createType } from '../ducks/editor';
 
 const styles = StyleSheet.create({
   drawerContent: {
@@ -62,6 +63,7 @@ const styles = StyleSheet.create({
 const dispatcher = dispatch => ({
   disconnect: () => dispatch(disconnectApi()),
   setMenu: (key, value) => dispatch(setMenu(key, value)),
+  createType: () => dispatch(createType()),
 });
 
 const extractor = state => ({
@@ -88,6 +90,13 @@ class AppDrawer extends React.Component {
     );
   }
 
+  createNewType = () => {
+    const { navigation } = this.props;
+    this.props.createType().then(() => {
+      navigation.navigate('TypeEditor');
+    });
+  };
+
   render() {
     const { navigation, api } = this.props;
     const { state } = navigation;
@@ -106,7 +115,7 @@ class AppDrawer extends React.Component {
     ));
     const connectedLinks = [
       this.makeEntry('Friends', 'group', () => navigation.navigate('Friends')),
-      this.makeEntry('Create', 'book', () => navigation.navigate('TypeEditor')),
+      this.makeEntry('Create', 'book', this.createNewType),
       this.makeEntry('Preferences', 'cake', () => navigation.navigate('Preferences')),
       this.makeEntry('Logout', 'block', () => {
         const { disconnect } = this.props;
