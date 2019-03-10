@@ -140,7 +140,7 @@ class PreferencesScreen extends Component {
                 ? <LoaderPlaceholder />
                 : (
                   <Text style={styles.mapWidgetMessage}>
-            You need to turn on geolocation to use this feature
+                    You need to turn on geolocation to use this feature
                   </Text>
                 )}
         </Container>
