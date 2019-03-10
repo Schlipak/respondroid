@@ -11,25 +11,28 @@ import {
 } from 'react-native-paper';
 import MapView, { Marker } from 'react-native-maps';
 import { Location } from 'expo';
+import colors from '../constants/colors';
 import Table from '../middlewares/Api/Table';
 import Container from '../components/Container';
 import LoaderPlaceholder from '../components/LoaderPlaceholder';
 
 const styles = StyleSheet.create({
-  content: {},
+  content: {
+    paddingHorizontal: 30,
+  },
   headline: {
-    marginBottom: 5,
+    marginTop: 20,
+    marginBottom: 20,
+    paddingHorizontal: 20,
   },
   mapWidget: {
+    backgroundColor: colors.grey.light,
     height: 300,
     width: '100%',
   },
-  inputContainer: {
-    width: '100%',
-    paddingHorizontal: 30,
-  },
-  loginButton: {
-    marginTop: 8,
+  mapWidgetMessage: {
+    textAlign: 'center',
+    lineHeight: 300,
   },
 });
 
@@ -117,14 +120,13 @@ class PreferencesScreen extends Component {
       <Container style={styles.mapWidget}>
         {this.state.position
           ? <MapView
-            style={styles.mapWidget}
+            {...StyleSheet.absoluteFillObject}
             initialRegion={{
               latitude: this.state.position.coords.latitude,
               longitude: this.state.position.coords.longitude,
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
             }}
-            {...StyleSheet.absoluteFillObject}
           >
             {this.state.markers.map(marker => (
               <Marker
@@ -137,25 +139,31 @@ class PreferencesScreen extends Component {
           </MapView>
         : this.state.loadingPosition
           ? <LoaderPlaceholder />
-          : <Text style={styles.mapWidget} >You need to turn on geolocation to use this feature</Text>}
+          : <Text style={styles.mapWidgetMessage}>
+            You need to turn on geolocation to use this feature
+          </Text>}
       </Container>
 
       {friendDetected &&
-        <View style={styles.inputContainer}>
-          <Title>Friend detected</Title>
-          <Text>{friendDetected.friend.name}</Text>
-          <Button onPress={() => this.addDetectedFriend(friendDetected.friend)} mode={'outlined'}>
-            Add friend
-          </Button>
-        </View>
+        <>
+          <Title style={styles.headline}>Friend detected</Title>
+          <Container style={styles.content}>
+            <Text>{friendDetected.friend.name}</Text>
+            <Button onPress={() => this.addDetectedFriend(friendDetected.friend)} mode={'outlined'}>
+              Add friend
+            </Button>
+          </Container>
+        </>
       }
 
-      <View style={styles.inputContainer}>
-        <Title>Current friends</Title>
-        {this.state.friends.map(friend =>
-          (<Text key={friend.id} >{friend.name}</Text>)
-        )}
-      </View>
+      <>
+        <Title style={styles.headline}>Current friends</Title>
+        <View style={styles.content}>
+          {this.state.friends.map(friend =>
+            (<Text key={friend.id} >{friend.name}</Text>)
+          )}
+        </View>
+      </>
 
       </KeyboardAvoidingView>
     );
