@@ -53,9 +53,6 @@ export default class SwipableItemList extends Component {
     setTimeout(() => {
       this.setState({
         refreshing: false,
-        items: Array(DEMO_ITEM_COUNT)
-          .fill(0)
-          .map((_, index) => ({ index, key: `${index}`, done: false })),
       });
     }, 2000);
   };
@@ -123,8 +120,7 @@ export default class SwipableItemList extends Component {
         <List.Item
           title={item.title}
           description={item.description}
-          left={() => {}} // Icon
-          onPress={() => console.log('Press item')}
+          onPress={() => this.props.onPress(item.ref)}
           style={{
             ...styles.listItem,
             ...borderLeft,

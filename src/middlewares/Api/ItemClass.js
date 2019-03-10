@@ -1,9 +1,10 @@
 import APIS from '../../constants/Apis';
 
 class Item {
-  constructor(apiSource, id, fields, toKeep) {
+  constructor(apiSource, id, fields, toKeep, table) {
     this.apiSource = apiSource;
     this.id = id;
+    this.table = table;
     this.toKeep = toKeep;
     this.fields = { ...fields };
     if (this.apiSource === APIS.Airtable) {
@@ -17,6 +18,9 @@ class Item {
         const parsed = JSON.parse(this.fields.Fields);
         this.fields.Fields = { ...parsed };
       }
+      if (this.table === 'Database') {
+        this.fields.Value = JSON.parse(this.fields.Value);
+      }
     } catch (e) {
       this.error = e;
     }
@@ -27,6 +31,14 @@ class Item {
     const fieldsCopy = { ...next.Fields };
     let serialized;
     if (item.apiSource === APIS.Airtable) {
+      if (item.fields.Value && item.table === 'Database') {
+        try {
+          next.Value = JSON.stringify(next.Value);
+          if (next.CreatedAt) {
+            delete next.CreatedAt;
+          }
+        } catch (e) {}
+      }
       if (item.fields.Fields) {
         const removable = ['editable', 'locked', 'methods', 'classMethods'];
         removable.forEach((key) => {

@@ -57,7 +57,7 @@ export function printDate(date, hoursPrefix) {
     if (hoursPrefix) {
       append = `${d.getHours()}h${d.getMinutes() < 10 ? `0${d.getMinutes()}` : d.getMinutes()}`;
     }
-    return `${DAYS[d.getDay() - 1]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${hoursPrefix || ''} ${append}`;
+    return `${d.getDate()} ${MONTHS[d.getMonth()]} ${hoursPrefix || ''} ${append}`;
   } catch (e) {
     return e.message;
   }

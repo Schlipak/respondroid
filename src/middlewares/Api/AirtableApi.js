@@ -49,7 +49,7 @@ export default class AirtableApi {
         // This function (`page`) will get called for each page of records.
         records.forEach((record) => {
           const toKeep = Object.keys(record.fields);
-          table.add(new Item(APIS.Airtable, record.id, record.fields, toKeep));
+          table.add(new Item(APIS.Airtable, record.id, record.fields, toKeep, name));
         });
 
         // To fetch the next page of records, call `fetchNextPage`.
@@ -68,7 +68,7 @@ export default class AirtableApi {
       this.base(table)
         .create(item, (err, record) => {
           const toKeep = Object.keys(record.fields);
-          const nextItem = new Item(APIS.Airtable, record.id, record.fields, toKeep);
+          const nextItem = new Item(APIS.Airtable, record.id, record.fields, toKeep, table);
           resolve({
             err,
             item: nextItem,
@@ -93,12 +93,15 @@ export default class AirtableApi {
     });
   }
 
-  sync(item) {
+  sync(item, table = 'Types') {
     return new Promise((resolve) => {
-      this.base('Types').update(item.id, Item.serialize(item), (err, record) => {
-        const toKeep = Object.keys(record.fields);
-        const nextItem = new Item(APIS.Airtable, record.id, record.fields, toKeep);
-        resolve({ err, item: nextItem });
+      this.base(table).update(item.id, Item.serialize(item), (err, record) => {
+        if (!err) {
+          const toKeep = Object.keys(record.fields);
+          const nextItem = new Item(APIS.Airtable, record.id, record.fields, toKeep, table);
+          resolve({ err, item: nextItem });
+        }
+        resolve({ err });
       });
     });
   }

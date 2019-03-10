@@ -111,7 +111,9 @@ function onAddItem(state, args) {
 
 export const removeItem = createAction(TYPES.addItem, 'type', 'id');
 function onRemoveItem(state, args) {
-  return changeState(state, `tables.${args.type}.content`, items => items.filter(it => it.id !== args.id));
+  return changeState(state,
+    `tables.${args.type}.content`,
+    items => items.filter(it => it.id !== args.id));
 }
 
 export const setItem = createAction(TYPES.setItem, 'type', 'id', 'object');
