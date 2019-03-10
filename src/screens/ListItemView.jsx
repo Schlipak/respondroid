@@ -39,7 +39,7 @@ const dispatcher = dispatch => ({
   setMenu: menu => dispatch(setMenu(menu)),
 });
 
-class LoginScreen extends Component {
+class ListItemView extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
     menu: PropType.objectOf(PropType.any),
@@ -57,14 +57,12 @@ class LoginScreen extends Component {
     } = this.state;
     const { navigation, api, menu } = this.props;
     const { type } = menu;
-    if (!type) {
+    if (!type || !type.fields || !type.fields.Fields) {
       return <View><Text>ERROR: No type provided</Text></View>;
     }
     const { Database } = api.tables;
     const list = Database.content.filter(it => it.fields.Type.includes(type.id));
-    const {
-      editable, locked, classMethods, methods,
-    } = type.fields.Fields;
+    const { editable, locked, classMethods, methods } = type.fields.Fields;
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         <View style={{
@@ -130,5 +128,5 @@ class LoginScreen extends Component {
   }
 }
 
-const ConnectedLoginScreen = connect(extractor, dispatcher)(LoginScreen);
-export default ConnectedLoginScreen;
+const ConnectedListItemView = connect(extractor, dispatcher)(ListItemView);
+export default ConnectedListItemView;

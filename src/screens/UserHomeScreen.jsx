@@ -131,15 +131,6 @@ class UserHomeScreen extends Component {
             );
           })
         }
-        <Divider />
-        <Button
-          style={{ margin: 4 }}
-          mode="contained"
-          onPress={() => this.goTo('TypeEditor')}
-        >
-          Create
-        </Button>
-        <Divider />
       </ScrollView>
     );
   }

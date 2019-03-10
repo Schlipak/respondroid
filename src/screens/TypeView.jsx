@@ -12,6 +12,7 @@ import { selectApi } from '../ducks/api';
 import { connectApi } from '../middlewares/Api/thunks';
 import { selectMenu, setMenu } from '../ducks/menu';
 import Container from '../components/Container';
+import { reset } from '../ducks/editor';
 
 const styles = StyleSheet.create({
   content: {
@@ -36,9 +37,10 @@ const extractor = state => ({
 
 const dispatcher = dispatch => ({
   setMenu: (key, value) => dispatch(setMenu(key, value)),
+  resetEditor: () => dispatch(reset()),
 });
 
-class LoginScreen extends Component {
+class TypeView extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
   };
@@ -92,7 +94,7 @@ class LoginScreen extends Component {
     } = this.state;
     const { navigation, menu } = this.props;
     const { type } = menu;
-    if (!type) {
+    if (!type || !type.fields || !type.fields.Fields) {
       return <View><Text>ERROR: No type provided</Text></View>;
     }
     const editable = type.fields.Fields.editable;
@@ -103,7 +105,13 @@ class LoginScreen extends Component {
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         <Container>
           <Title style={styles.headline}>Description</Title>
-          <Button mode={'contained'} onPress={() => this.goTo('TypeEditor', type)}>
+          <Button
+            mode="contained"
+            onPress={() => {
+              this.props.resetEditor();
+              this.goTo('TypeEditor', type);
+            }}
+          >
             Edit
           </Button>
         </Container>
@@ -143,5 +151,5 @@ class LoginScreen extends Component {
   }
 }
 
-const ConnectedLoginScreen = connect(extractor, dispatcher)(LoginScreen);
-export default ConnectedLoginScreen;
+const ConnectedTypeView = connect(extractor, dispatcher)(TypeView);
+export default ConnectedTypeView;

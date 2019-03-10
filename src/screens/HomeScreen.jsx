@@ -79,7 +79,6 @@ class HomeScreen extends Component {
 
   render() {
     const { navigation, api } = this.props;
-    const { looping } = this.state;
     if (api.connected) {
       return <UserHomeScreen navigation={navigation} />;
     }

@@ -4,7 +4,7 @@ import createSelector from '../utils/selector';
 import createAction from '../utils/actions';
 import changeState from '../utils/changeState';
 import { newLoader, setLoading } from './Loaders';
-import { addItem, setItem } from './api';
+import { addItem, removeItem, setItem } from './api';
 import { setMenu } from './menu';
 import FIELD_TYPES from '../constants/fieldTypes';
 
@@ -121,6 +121,20 @@ export function saveItem() {
       });
     }
     return Promise.resolve({ err: 'Invalid type' });
+  };
+}
+
+export function destroy() {
+  return (dispatch, getState, { api }) => {
+    const state = getState();
+    const editor = selectEditor(state);
+    const { table, itemId } = editor;
+    dispatch(newLoader('editor', true));
+    return api.destroy(table, itemId).then(({ err, record }) => {
+      dispatch(removeItem(table, itemId));
+      dispatch(setLoading('editor', false));
+      return Promise.resolve({ err, record });
+    });
   };
 }
 

@@ -77,6 +77,14 @@ export default class AirtableApi {
     });
   }
 
+  destroy(table, id) {
+    return new Promise((resolve) => {
+      this.base(table).destroy(id, (err, deletedRecord) => {
+        resolve({ err, record: deletedRecord });
+      });
+    });
+  }
+
   update(table, id, next) {
     return new Promise((resolve) => {
       this.base(table).update(id, next, (err, record) => {

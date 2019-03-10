@@ -22,6 +22,10 @@ class Api {
     return this.internal.disconnect();
   }
 
+  destroy(table, id) {
+    return this.internal.destroy(table, id);
+  }
+
   table(name) {
     return this.internal.table(name);
   }

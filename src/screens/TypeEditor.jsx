@@ -12,7 +12,7 @@ import { TextInput as NativeTextInput } from 'react-native';
 import { selectApi } from '../ducks/api';
 import {
   addField, reset,
-  change, changeAttr, saveItem, selectEditor, setMeta, saveNewItem,
+  change, changeAttr, saveItem, selectEditor, setMeta, saveNewItem, destroy,
 } from '../ducks/editor';
 import { selectLoaders } from '../ducks/Loaders';
 import Container from '../components/Container';
@@ -52,8 +52,9 @@ const dispatcher = dispatch => ({
   saveNew: () => dispatch(saveNewItem()),
   change: (field, value) => dispatch(change(field, value)),
   changeAttr: (cat, idx, attr, val) => dispatch(changeAttr(cat, idx, attr, val)),
-  addField: (category) => dispatch(addField(category)),
+  addField: category => dispatch(addField(category)),
   resetEditor: () => dispatch(reset()),
+  destroy: () => dispatch(destroy()),
 });
 
 class TypeEditorScreen extends Component {
@@ -65,6 +66,15 @@ class TypeEditorScreen extends Component {
     super();
     this.state = {};
   }
+
+  destroy = () => {
+    const { navigation } = this.props;
+    this.props.destroy().then(({ err, record }) => {
+      if (!err) {
+        navigation.navigate('Home');
+      }
+    });
+  };
 
   save = () => {
     const { editor, navigation } = this.props;
@@ -110,17 +120,15 @@ class TypeEditorScreen extends Component {
     }
   };
 
-  displayFields = (fields, category) => {
-    return fields.map((field, index) => (
-      <TypeEditorField
-        field={field}
-        index={index}
-        changeAttr={this.props.changeAttr}
-        category={category}
-        collapsed
-      />
-    ));
-  }
+  displayFields = (fields, category) => fields.map((field, index) => (
+    <TypeEditorField
+      field={field}
+      index={index}
+      changeAttr={this.props.changeAttr}
+      category={category}
+      collapsed
+    />
+  ));
 
   displayMethods = (methods, bg = 'lightgreen') => methods.map(method => (
     <View style={{ padding: 8, backgroundColor: bg }}>
@@ -128,8 +136,8 @@ class TypeEditorScreen extends Component {
         <TextInput
           value={method.name}
           onChange={(text) => {}}
-          mode={'outlined'}
-          label={'Method Name'}
+          mode="outlined"
+          label="Method Name"
         />
         <Text>
           {method.prototype}
@@ -142,36 +150,43 @@ class TypeEditorScreen extends Component {
   ));
 
   cancel = () => {
+    const { editor } = this.props;
+    const { isNew } = editor;
     this.props.resetEditor();
-    this.props.navigation.goBack();
+    if (isNew) {
+      this.props.navigation.navigate('Home');
+    } else {
+      this.props.navigation.goBack();
+    }
   };
 
   render() {
     const {
-      navigation, editorLoader, editor, api, menu
+      navigation, editorLoader, editor, api, menu,
     } = this.props;
-    const { item } = editor;
+    const { item, isNew } = editor;
     const original = Table.findById(api.tables.Types, editor.itemId);
     const { type } = menu;
     this.init(item, type);
     if (editorLoader || !item) {
       return <LoaderPlaceholder />;
     }
-    const editable = item.fields.Fields.editable;
-    const locked = item.fields.Fields.locked;
-    const classMethods = item.fields.Fields.classMethods;
-    const methods = item.fields.Fields.methods;
+    const {
+      editable, locked, classMethods, methods,
+    } = item.fields.Fields;
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         <ScrollView>
           <Container>
             <Title>
-              {original && original.fields && original.fields.Name} {editor.synced === true ? 'Synced!' : ''}
+              {original && original.fields && original.fields.Name}
+              {' '}
+              {editor.synced === true ? 'Synced!' : ''}
             </Title>
-            <Button onPress={this.cancel} mode={'contained'} color={'orange'}>
+            <Button onPress={this.cancel} mode="contained" color="orange">
               Cancel
             </Button>
-            <Button onPress={this.save} mode={'contained'}>
+            <Button onPress={this.save} mode="contained">
               Save
             </Button>
           </Container>
@@ -203,9 +218,13 @@ class TypeEditorScreen extends Component {
               <Headline style={{ fontWeight: 'bold' }}>
                 Editable fields
               </Headline>
-              <Button icon={'add'} mode={'outlined'} onPress={() => {
-                this.props.addField('editable')
-              }}>
+              <Button
+                icon="add"
+                mode="outlined"
+                onPress={() => {
+                  this.props.addField('editable');
+                }}
+              >
                 Add
               </Button>
             </Container>
@@ -216,13 +235,18 @@ class TypeEditorScreen extends Component {
             <Container style={{ padding: 5 }}>
               <Headline style={{
                 fontWeight: 'bold',
-                color: 'crimson'
-              }}>
+                color: 'crimson',
+              }}
+              >
                 Locked fields
               </Headline>
-              <Button icon={'add'} mode={'outlined'} onPress={() => {
-                this.props.addField('locked')
-              }}>
+              <Button
+                icon="add"
+                mode="outlined"
+                onPress={() => {
+                  this.props.addField('locked');
+                }}
+              >
                 Add
               </Button>
             </Container>
@@ -244,21 +268,33 @@ class TypeEditorScreen extends Component {
               (methods && methods.length > 0 && this.displayMethods(methods)) || <Text>No methods found</Text>
             }
           </View>
-          <View>
-            <Container>
-              <Text style={{ color: 'crimson' }}>
-                Danger Zone
-              </Text>
-              <ConfirmButton
-                title={'Confirm'}
-                label={'Delete'}
-                color={'crimson'}
-                content={<Text>Are you sure you want to delete {type.fields.Name} ?</Text>}
-                onCancel={() => {}}
-                onConfirm={() => {}}
-              />
-            </Container>
-          </View>
+          {
+            !isNew && (
+              <View>
+                <Title style={{ color: 'crimson' }}>
+                  Danger Zone
+                </Title>
+                <ConfirmButton
+                  title="Confirm"
+                  label="Delete"
+                  color="crimson"
+                  content={(
+                    <Text>
+                      Are you sure you want to delete
+                      {' '}
+                      {type.fields.Name}
+                      {' '}
+                      {' '}
+                      {' '}
+?
+                    </Text>
+                  )}
+                  onCancel={() => {}}
+                  onConfirm={this.destroy}
+                />
+              </View>
+            )
+          }
         </ScrollView>
       </KeyboardAvoidingView>
     );

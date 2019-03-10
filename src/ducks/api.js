@@ -27,6 +27,7 @@ export const selectSync = createSelector('selectSync', state => state.api.sync);
 
 export const TYPES = {
   addItem: `${PREFIX}/addItem`,
+  removeItem: `${PREFIX}/removeItem`,
   connectedToApi: `${PREFIX}/connectedToApi`,
   tableContent: `${PREFIX}/tableContent`,
   cacheItem: `${PREFIX}/cacheItem`,
@@ -107,6 +108,12 @@ function onAddItem(state, args) {
   return changeState(state, `tables.${args.type}.content`, items => [...items, args.object]);
 }
 
+
+export const removeItem = createAction(TYPES.addItem, 'type', 'id');
+function onRemoveItem(state, args) {
+  return changeState(state, `tables.${args.type}.content`, items => items.filter(it => it.id !== args.id));
+}
+
 export const setItem = createAction(TYPES.setItem, 'type', 'id', 'object');
 function onSetItem(state, args) {
   return changeState(state, `tables.${args.type}.content`, items => items.map((it) => {
@@ -126,6 +133,7 @@ function onUnloadCache(state, args) {
 export default function reducer(state = initialState, { type, payload } = {}) {
   switch (type) {
   case TYPES.addItem: return onAddItem(state, payload);
+  case TYPES.removeItem: return onRemoveItem(state, payload);
   case TYPES.connectedToApi: return onConnectedToApi(state, payload);
   case TYPES.tableContent: return onTableContent(state, payload);
   case TYPES.editItem: return onEditItem(state, payload);
