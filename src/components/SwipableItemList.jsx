@@ -33,8 +33,6 @@ const styles = StyleSheet.create({
   }),
 });
 
-const DEMO_ITEM_COUNT = 16;
-
 export default class SwipableItemList extends Component {
   constructor(props) {
     super(props);
@@ -72,22 +70,22 @@ export default class SwipableItemList extends Component {
     }
     if (value < -(height * 2) && !leftSwipe) {
       // Dragging item to the left
-      // console.log(`${value} < ${this.width} + ${height}`);
-      console.log('Swiped item left');
       this.setState({
         leftSwipe: true,
       });
       // Add callback from redux props, on swipe left
-      onSwipeLeft(item);
+      if (onSwipeLeft) {
+        onSwipeLeft(item);
+      }
     } else if (value > height * 2 && !rightSwipe) {
       // Dragging item to the right
-      // console.log(`${value} > ${this.width} + ${height}`);
-      console.log('Swiped item right');
       this.setState({
         rightSwipe: true,
       });
       // Add callback from redux props, on swipe right
-      onSwipeRight(item);
+      if (onSwipeRight) {
+        onSwipeRight(item);
+      }
     }
   };
 
@@ -149,7 +147,6 @@ export default class SwipableItemList extends Component {
                 onPress={() => {
                   rowMap[key].closeRow();
                   // Add callback from redux props, on click left icon
-                  console.log('Click left button');
                   onClickLeft(item);
                 // setTimeout(() => {
                 //   items[index].done = !done;
@@ -179,7 +176,6 @@ export default class SwipableItemList extends Component {
                 onPress={() => {
                   rowMap[key].closeRow();
                   // Add callback from redux props, on click left icon
-                  console.log('Click left button');
                   onClickLeft(item);
                   // setTimeout(() => {
                   //   items[index].done = !done;

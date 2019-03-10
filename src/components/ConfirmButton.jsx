@@ -39,7 +39,7 @@ class ConfirmButton extends React.Component {
             </Dialog.Content>
             <Dialog.Actions>
               <Button style={{ marginRight: 10 }} onPress={this.cancel} color={'orange'} mode={'outlined'}>Cancel</Button>
-              <Button onPress={this.confirm} mode={'contained'}>Done</Button>
+              <Button onPress={this.confirm} mode={'contained'}>Confirm</Button>
             </Dialog.Actions>
           </Dialog>
         </Portal>

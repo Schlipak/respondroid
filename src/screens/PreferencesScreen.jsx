@@ -6,18 +6,17 @@ import {
   View,
   KeyboardAvoidingView,
   TextInput as NativeTextInput,
-  TouchableOpacity,
   Image,
 } from 'react-native';
 import {
-  Headline, TextInput, Button, HelperText, Title, Text,
+  TextInput, Button, HelperText, Title,
 } from 'react-native-paper';
 import { ImagePicker } from 'expo';
+import LottieView from 'lottie-react-native';
 import { selectApi } from '../ducks/api';
 import { saveUsername, saveUserProfilePicture } from '../ducks/user';
 import Table from '../middlewares/Api/Table';
 import Container from '../components/Container';
-import LottieView from 'lottie-react-native';
 import LoaderLottie from '../../assets/success.json';
 
 const styles = StyleSheet.create({
@@ -29,9 +28,9 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: 30,
   },
-  loginButton: {
-    marginTop: 8,
-  },
+  lottieV: { width: '100%', textAlign: 'center', justifyContent: 'center' },
+  lottieWidth: { width: 256 },
+  containerPadding: { paddingLeft: 32, paddingRight: 32 },
 });
 
 const extractor = state => ({
@@ -46,6 +45,9 @@ const dispatcher = dispatch => ({
 class PreferencesScreen extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
+    api: PropType.objectOf(PropType.any).isRequired,
+    changeProfilePicture: PropType.func().isRequired,
+    changeUsername: PropType.func().isRequired,
   };
 
   constructor() {
@@ -57,15 +59,16 @@ class PreferencesScreen extends Component {
   }
 
   saveProfilePic = () => {
-    const { api } = this.props;
+    const { api, changeProfilePicture } = this.props;
     const row = api.tables.Meta.content.find(it => it.fields.Name === 'Picture');
     if (row && row.id) {
       this.setState({
         updating: true,
         updated: false,
       });
-      this.props.changeProfilePicture(row.id, `data:image/png;base64,${this.state.data}`)
-        .then(({ err, record }) => {
+      const { data } = this.state;
+      changeProfilePicture(row.id, `data:image/png;base64,${data}`)
+        .then(({ err }) => {
           if (!err) {
             this.setState({
               updated: true,
@@ -83,14 +86,15 @@ class PreferencesScreen extends Component {
   };
 
   saveUsername = () => {
-    const { api } = this.props;
+    const { api, changeUsername } = this.props;
     const row = api.tables.Meta.content.find(it => it.fields.Name === 'Creator');
     if (row && row.id) {
       this.setState({
         updating: true,
         updated: false,
       });
-      this.props.changeUsername(row.id, this.state.username).then(({ err, record }) => {
+      const { username } = this.state;
+      changeUsername(row.id, username).then(({ err }) => {
         if (!err) {
           this.setState({
             updated: true,
@@ -104,20 +108,20 @@ class PreferencesScreen extends Component {
         }
       });
     }
-  }
+  };
 
   save = () => {
-    if (this.state.filePath) {
+    const { filePath, username } = this.state;
+    if (filePath) {
       this.saveProfilePic();
     }
-    if (this.state.username) {
+    if (username) {
       this.saveUsername();
     }
   };
 
   toBase64 = (file, callback) => {
     const reader = new FileReader();
-    console.log('FileReader started job on file');
     reader.onloadend = () => {
       callback(reader.result);
     };
@@ -141,34 +145,40 @@ class PreferencesScreen extends Component {
   };
 
   render() {
-    const img = this.state.data && `data:image/png;base64,${this.state.data}`;
+    const {
+      data, updating, updated, username,
+    } = this.state;
+    const { api } = this.props;
+    const img = data && `data:image/png;base64,${data}`;
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
-        <Container style={{ padding: 5 }}>
+        <Container>
           <Title style={styles.headline}>Preferences</Title>
-          <Button onPress={this.save} disabled={this.state.updating} mode={'contained'}>
-            { this.state.updating ? 'Saving... ' : 'Save' }
+          <Button onPress={this.save} disabled={updating} mode="contained">
+            { updating ? 'Saving... ' : 'Save' }
           </Button>
         </Container>
-        { this.state.updated && <Container style={{ width: '100%', textAlign: 'center', justifyContent: 'center' }}>
-          <LottieView
-            source={LoaderLottie}
-            autoPlay
-            style={{ width: 256 }}
-          />
-        </Container>
+        { updated && (
+          <Container style={styles.lottieV}>
+            <LottieView
+              source={LoaderLottie}
+              autoPlay
+              style={styles.lottieWidth}
+            />
+          </Container>
+        )
         }
-        <Container style={{ paddingLeft: 32, paddingRight: 32 }}>
-          <Image source={{ uri: img || Table.getFieldByParentName(this.props.api.tables.Meta, 'Picture') }} style={{ width: 64, height: 64 }} />
-          <Button title="Change Profile Picture" onPress={this.chooseFile} mode={'outlined'} disabled={this.state.updating}>
+        <Container style={styles.containerPadding}>
+          <Image source={{ uri: img || Table.getFieldByParentName(api.tables.Meta, 'Picture') }} style={styles.containerPadding} />
+          <Button title="Change Profile Picture" onPress={this.chooseFile} mode="outlined" disabled={updating}>
             Change Picture
           </Button>
         </Container>
         <View style={styles.inputContainer}>
           <TextInput
-            disabled={this.state.updating}
+            disabled={updating}
             label="Username"
-            value={this.state.username && this.state.username.length >= 0 ? this.state.username : Table.getFieldByParentName(this.props.api.tables.Meta, 'Creator')}
+            value={username && username.length >= 0 ? username : Table.getFieldByParentName(api.tables.Meta, 'Creator')}
             mode="outlined"
             error={undefined}
             onChangeText={text => this.setState({ username: text || '' })}

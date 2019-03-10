@@ -2,18 +2,18 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropType from 'prop-types';
 import {
-  StyleSheet, View, KeyboardAvoidingView, TextInput as NativeTextInput, Image,
+  StyleSheet, View, KeyboardAvoidingView,
 } from 'react-native';
 import {
-  Headline, TextInput, Button, HelperText, Text, Title, Subheading, Divider,
+  Button, Text, Title, Subheading, Divider,
 } from 'react-native-paper';
-import AirtableLogo from '../../assets/AirtableLogo.jpg';
 import { selectApi } from '../ducks/api';
-import { connectApi } from '../middlewares/Api/thunks';
 import { printDate } from '../utils/date';
 import { selectMenu, setMenu } from '../ducks/menu';
 import SwipableItemList from '../components/SwipableItemList';
 import { createItem, setMeta } from '../ducks/itemEditor';
+import { setPopupInfo } from '../ducks/popup';
+import Container from '../components/Container';
 
 const styles = StyleSheet.create({
   content: {
@@ -22,13 +22,7 @@ const styles = StyleSheet.create({
   headline: {
     marginBottom: 5,
   },
-  inputContainer: {
-    width: '100%',
-    paddingHorizontal: 30,
-  },
-  loginButton: {
-    marginTop: 8,
-  },
+  createButton: { width: '100%', marginBottom: 5 },
 });
 
 const extractor = state => ({
@@ -39,14 +33,18 @@ const extractor = state => ({
 const dispatcher = dispatch => ({
   setMenu: menu => dispatch(setMenu(menu)),
   setInEditor: (key, value) => dispatch(setMeta(key, value)),
-  createItem: type => dispatch(createItem(type)),
+  doCreateItem: type => dispatch(createItem(type)),
+  doSetPopupInfo: (key, value) => dispatch(setPopupInfo(key, value)),
 });
 
 class ListItemView extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
-    menu: PropType.objectOf(PropType.any),
-    api: PropType.objectOf(PropType.any),
+    menu: PropType.objectOf(PropType.any).isRequired,
+    api: PropType.objectOf(PropType.any).isRequired,
+    doSetPopupInfo: PropType.func().isRequired,
+    setInEditor: PropType.func().isRequired,
+    doCreateItem: PropType.func().isRequired,
   };
 
   constructor() {
@@ -54,31 +52,36 @@ class ListItemView extends Component {
     this.state = {};
   }
 
+  popup = (title, text, callback) => {
+    const { doSetPopupInfo } = this.props;
+    doSetPopupInfo('isOpen', true);
+    doSetPopupInfo('title', title);
+    doSetPopupInfo('text', text);
+    doSetPopupInfo('onConfirm', () => { callback(); });
+  };
+
   goTo = (screen, type, item) => {
-    const { navigation } = this.props;
+    const { navigation, setInEditor, doCreateItem } = this.props;
     // Set what is needed in item editor
     if (item) {
-      this.props.setInEditor('itemId', item.id);
-      const copy = { ...item }
-      type.fields.Fields.editable.forEach(field => {
+      setInEditor('itemId', item.id);
+      const copy = { ...item };
+      type.fields.Fields.editable.forEach((field) => {
         if (!copy.fields.Value[field.name]) {
           copy.fields.Value[field.name] = null;
         }
       });
-      this.props.setInEditor('item', { ...copy });
-      this.props.setInEditor('table', 'Database');
-      this.props.setInEditor('isNew', false);
-      this.props.setInEditor('type', type);
+      setInEditor('item', { ...copy });
+      setInEditor('table', 'Database');
+      setInEditor('isNew', false);
+      setInEditor('type', type);
     } else {
-      this.props.createItem(type);
+      doCreateItem(type);
     }
     navigation.navigate(screen);
   };
 
   render() {
-    const {
-      email, emailError, password, passwordError,
-    } = this.state;
     const { navigation, api, menu } = this.props;
     const { type } = menu;
     if (!type || !type.fields || !type.fields.Fields) {
@@ -86,15 +89,10 @@ class ListItemView extends Component {
     }
     const { Database } = api.tables;
     const list = Database.content.filter(it => it.fields.Type.includes(type.id));
-    const {
-      editable, locked, classMethods, methods,
-    } = type.fields.Fields;
+
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
-        <View style={{
-          display: 'flex', justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', margin: 4,
-        }}
-        >
+        <Container>
           <Title style={styles.headline}>
             {type.fields.Name}
           </Title>
@@ -104,14 +102,12 @@ class ListItemView extends Component {
           >
             About
           </Button>
-        </View>
+        </Container>
         <Subheading>
           {type.fields.Description}
         </Subheading>
-        <Button mode="outlined" style={{ width: '100%', marginBottom: 5 }} onPress={() => this.goTo('ItemEditor', type)}>
-          Create
-          {' '}
-          {type.fields.Name}
+        <Button mode="outlined" style={styles.createButton} onPress={() => this.goTo('ItemEditor', type)}>
+          {`Create ${type.fields.Name}`}
         </Button>
         <Divider />
         {
@@ -122,39 +118,26 @@ class ListItemView extends Component {
               parser={(it, index) => {
                 let fieldName = it.fields.Name;
                 try {
-                  fieldName = it.fields.Value.Name || it.fields.Value.Title || it.fields.value.name || it.fields.value.title;
-                } catch (e) {}
+                  fieldName = it.fields.Value.Name
+                    || it.fields.Value.Title
+                    || it.fields.value.name
+                    || it.fields.value.title;
+                } catch (e) {
+                  fieldName = it.fields.Name;
+                }
                 return {
                   index,
                   key: `${index}`,
                   ref: it,
-                  title: fieldName || it.fields.Name,
-                  onClickLeft: (item) => { console.log(`YOU CLICKED LEFT ON ITEM ${item.key}`); },
+                  title: fieldName,
+                  onClickLeft: () => { this.goTo('ItemEditor', type); },
                   leftLabel: {
-                    text: 'Save',
+                    text: 'Edit',
                     bg: 'green',
                     color: 'black',
                   },
-                  swipeLeftLabel: {
-                    text: 'Share',
-                    bg: 'blue',
-                    color: 'white',
-                  },
-                  onSwipeLeft: (item) => { console.log(`SwipeLeft on item ${item.key}`); },
-                  onClickRight: (item) => { console.log(`YOU CLICKED RIGHT ON ITEM ${item.key}`); },
-                  rightLabel: {
-                    text: 'Destroy',
-                    color: 'white',
-                    bg: 'crimson',
-                  },
-                  onSwipeRight: (item) => { console.log(`SwipeRight on item ${item.key}`); },
-                  swipeRightLabel: {
-                    text: 'Upload',
-                    bg: 'orange',
-                    color: 'red',
-                  },
                   description: printDate(it.fields.CreatedAt, 'at'),
-                }
+                };
               }}
             />
           )

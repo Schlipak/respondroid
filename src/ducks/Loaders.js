@@ -1,7 +1,6 @@
 import createSelector from '../utils/selector';
 import createAction from '../utils/actions';
 import changeState, { removeState } from '../utils/changeState';
-import commonReducer from '../utils/reducer';
 
 // Initial state
 const initialState = {

@@ -16,13 +16,9 @@ const initialState = {
 };
 
 // Selectors
-// Selectors
-export const selectApi = createSelector('selectApi', (state, name) => state.api);
-
+export const selectApi = createSelector('selectApi', state => state.api);
 export const selectTable = createSelector('selectTable', (state, name) => state.api.tables[name]);
-
-export const selectCache = createSelector('selectCache', (state, name) => state.api.cache);
-
+export const selectCache = createSelector('selectCache', state => state.api.cache);
 export const selectSync = createSelector('selectSync', state => state.api.sync);
 
 export const TYPES = {
@@ -46,7 +42,7 @@ function onConnectedToApi(state, args) {
 }
 
 export const reset = createAction(TYPES.reset);
-function onReset(state) {
+function onReset() {
   return initialState;
 }
 
@@ -74,7 +70,6 @@ function onCacheItem(state, args) {
 
 export const editItem = createAction(TYPES.editItem, 'type', 'object', 'changes', 'functions');
 function onEditItem(state, args) {
-  console.log(args);
   return changeState(state, `tables.${args.type}.content`, (items) => {
     const next = items.map((it) => {
       if (it.id === args.object.id) {

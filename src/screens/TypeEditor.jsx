@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import PropType from 'prop-types';
 import {
   StyleSheet,
-  KeyboardAvoidingView, View, ScrollView, Picker,
+  KeyboardAvoidingView, View, ScrollView,
+  TextInput as NativeTextInput,
 } from 'react-native';
 import {
-  Title, Text, Button, TextInput, Headline, Divider, Subheading,
+  Title, Text, Button, TextInput, Headline, Divider,
 } from 'react-native-paper';
-import { TextInput as NativeTextInput } from 'react-native';
 import { selectApi } from '../ducks/api';
 import {
   addField, reset,
@@ -26,16 +26,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 5,
   },
-  headline: {
-    marginBottom: 5,
-  },
-  inputContainer: {
-    width: '100%',
-    paddingHorizontal: 30,
-  },
-  loginButton: {
-    marginTop: 8,
-  },
 });
 
 const extractor = state => ({
@@ -46,20 +36,33 @@ const extractor = state => ({
 });
 
 const dispatcher = dispatch => ({
-  setMenu: (field, value) => dispatch(setMenu(field, value)),
-  setMeta: (field, value) => dispatch(setMeta(field, value)),
+  doSetMenu: (field, value) => dispatch(setMenu(field, value)),
+  doSetMeta: (field, value) => dispatch(setMeta(field, value)),
   save: () => dispatch(saveItem()),
   saveNew: () => dispatch(saveNewItem()),
-  change: (field, value) => dispatch(change(field, value)),
-  changeAttr: (cat, idx, attr, val) => dispatch(changeAttr(cat, idx, attr, val)),
-  addField: category => dispatch(addField(category)),
-  resetEditor: () => dispatch(reset()),
-  destroy: () => dispatch(destroy()),
+  doChange: (field, value) => dispatch(change(field, value)),
+  doChangeAttr: (cat, idx, attr, val) => dispatch(changeAttr(cat, idx, attr, val)),
+  doAddField: category => dispatch(addField(category)),
+  doResetEditor: () => dispatch(reset()),
+  doDestroy: () => dispatch(destroy()),
 });
 
 class TypeEditorScreen extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
+    editor: PropType.objectOf(PropType.any).isRequired,
+    saveNew: PropType.func().isRequired,
+    save: PropType.func().isRequired,
+    doResetEditor: PropType.func().isRequired,
+    doSetMenu: PropType.func().isRequired,
+    doDestroy: PropType.func().isRequired,
+    doSetMeta: PropType.func().isRequired,
+    doChange: PropType.func().isRequired,
+    doAddField: PropType.func().isRequired,
+    doChangeAttr: PropType.func().isRequired,
+    editorLoader: PropType.objectOf(PropType.any).isRequired,
+    api: PropType.objectOf(PropType.any).isRequired,
+    menu: PropType.objectOf(PropType.any).isRequired,
   };
 
   constructor() {
@@ -68,8 +71,8 @@ class TypeEditorScreen extends Component {
   }
 
   destroy = () => {
-    const { navigation } = this.props;
-    this.props.destroy().then(({ err, record }) => {
+    const { navigation, doDestroy } = this.props;
+    doDestroy().then(({ err }) => {
       if (!err) {
         navigation.navigate('Home');
       }
@@ -77,34 +80,37 @@ class TypeEditorScreen extends Component {
   };
 
   save = () => {
-    const { editor, navigation } = this.props;
+    const {
+      editor, navigation, saveNew, save, doResetEditor, doSetMenu,
+    } = this.props;
     const { isNew } = editor;
     if (isNew) {
-      this.props.saveNew().then(({ err, item }) => {
+      saveNew().then(({ err, item }) => {
         if (!err) {
-          this.props.resetEditor();
-          this.props.setMenu('type', item);
+          doResetEditor();
+          doSetMenu('type', item);
           navigation.navigate('TypeView');
         }
       });
     } else {
-      this.props.save().then(({ err, item }) => {
+      save().then(({ err, item }) => {
         if (!err) {
-          this.props.setMenu('title', `${item.fields.Name} Editor`);
+          doSetMenu('title', `${item.fields.Name} Editor`);
         }
       });
     }
   };
 
   init = (item, type) => {
+    const { doSetMeta } = this.props;
     if (!item && type && type.id) {
-      this.props.setMeta('table', 'Types');
-      this.props.setMeta('itemId', type.id);
-      this.props.setMeta('item', type);
+      doSetMeta('table', 'Types');
+      doSetMeta('itemId', type.id);
+      doSetMeta('item', type);
     } else if (!item && type && !type.id) {
-      this.props.setMeta('table', 'Types');
-      this.props.setMeta('isNew', true);
-      this.props.setMeta('item', {
+      doSetMeta('table', 'Types');
+      doSetMeta('isNew', true);
+      doSetMeta('item', {
         id: 'create-item-id',
         fields: {
           Name: 'NewType',
@@ -120,22 +126,24 @@ class TypeEditorScreen extends Component {
     }
   };
 
-  displayFields = (fields, category) => fields.map((field, index) => (
-    <TypeEditorField
-      field={field}
-      index={index}
-      changeAttr={this.props.changeAttr}
-      category={category}
-      collapsed
-    />
-  ));
+  displayFields = (fields, category) => fields.map((field, index) => {
+    const { doChangeAttr } = this.props;
+    return (
+      <TypeEditorField
+        field={field}
+        index={index}
+        changeAttr={doChangeAttr}
+        category={category}
+        collapsed
+      />
+    );
+  });
 
-  displayMethods = (methods, bg = 'lightgreen') => methods.map(method => (
-    <View style={{ padding: 8, backgroundColor: bg }}>
+  displayMethods = methods => methods.map(method => (
+    <View>
       <Container>
         <TextInput
           value={method.name}
-          onChange={(text) => {}}
           mode="outlined"
           label="Method Name"
         />
@@ -150,19 +158,19 @@ class TypeEditorScreen extends Component {
   ));
 
   cancel = () => {
-    const { editor } = this.props;
+    const { navigation, editor, doResetEditor } = this.props;
     const { isNew } = editor;
-    this.props.resetEditor();
+    doResetEditor();
     if (isNew) {
-      this.props.navigation.navigate('Home');
+      navigation.navigate('Home');
     } else {
-      this.props.navigation.goBack();
+      navigation.goBack();
     }
   };
 
   render() {
     const {
-      navigation, editorLoader, editor, api, menu,
+      editorLoader, editor, api, menu, doChange, doAddField,
     } = this.props;
     const { item, isNew } = editor;
     const original = Table.findById(api.tables.Types, editor.itemId);
@@ -197,7 +205,7 @@ class TypeEditorScreen extends Component {
             label="Name"
             value={item.fields.Name}
             mode="outlined"
-            onChangeText={text => this.props.change('Name', text)}
+            onChangeText={text => doChange('Name', text)}
             render={props => (
               <NativeTextInput {...props} />
             )}
@@ -206,7 +214,7 @@ class TypeEditorScreen extends Component {
             label="Description"
             value={item.fields.Description}
             mode="outlined"
-            onChangeText={text => this.props.change('Description', text)}
+            onChangeText={text => doChange('Description', text)}
             multiline
             numberOfLines={3}
             render={props => (
@@ -214,15 +222,15 @@ class TypeEditorScreen extends Component {
             )}
           />
           <View>
-            <Container style={{ padding: 5 }}>
-              <Headline style={{ fontWeight: 'bold' }}>
+            <Container>
+              <Headline>
                 Editable fields
               </Headline>
               <Button
                 icon="add"
                 mode="outlined"
                 onPress={() => {
-                  this.props.addField('editable');
+                  doAddField('editable');
                 }}
               >
                 Add
@@ -232,19 +240,15 @@ class TypeEditorScreen extends Component {
           </View>
           <Divider />
           <View>
-            <Container style={{ padding: 5 }}>
-              <Headline style={{
-                fontWeight: 'bold',
-                color: 'crimson',
-              }}
-              >
+            <Container>
+              <Headline>
                 Locked fields
               </Headline>
               <Button
                 icon="add"
                 mode="outlined"
                 onPress={() => {
-                  this.props.addField('locked');
+                  doAddField('locked');
                 }}
               >
                 Add
@@ -257,7 +261,8 @@ class TypeEditorScreen extends Component {
               Class Methods
             </Text>
             {
-              (classMethods && classMethods.length > 0 && this.displayMethods(classMethods)) || <Text>No class methods found</Text>
+              (classMethods && classMethods.length > 0
+                && this.displayMethods(classMethods)) || <Text>No class methods found</Text>
             }
           </View>
           <View>
@@ -265,13 +270,14 @@ class TypeEditorScreen extends Component {
               Instance methods
             </Text>
             {
-              (methods && methods.length > 0 && this.displayMethods(methods)) || <Text>No methods found</Text>
+              (methods && methods.length > 0
+                && this.displayMethods(methods)) || <Text>No methods found</Text>
             }
           </View>
           {
             !isNew && (
               <View>
-                <Title style={{ color: 'crimson' }}>
+                <Title>
                   Danger Zone
                 </Title>
                 <ConfirmButton
@@ -280,13 +286,7 @@ class TypeEditorScreen extends Component {
                   color="crimson"
                   content={(
                     <Text>
-                      Are you sure you want to delete
-                      {' '}
-                      {type.fields.Name}
-                      {' '}
-                      {' '}
-                      {' '}
-?
+                      {`Are you sure you want to delete ${type.fields.Name} ?`}
                     </Text>
                   )}
                   onCancel={() => {}}

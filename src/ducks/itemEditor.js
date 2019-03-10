@@ -5,7 +5,6 @@ import createAction from '../utils/actions';
 import changeState from '../utils/changeState';
 import { newLoader, setLoading } from './Loaders';
 import { addItem, removeItem, setItem } from './api';
-import { setMenu } from './menu';
 
 const PREFIX = '/ducks/editor';
 const initialState = {
@@ -24,13 +23,11 @@ export const TYPES = {
   setMeta: `${PREFIX}/setMeta`,
   change: `${PREFIX}/change`,
   changeAttr: `${PREFIX}/changeAttr`,
-  // addField: `${PREFIX}/addField`,
   reset: `${PREFIX}/reset`,
 };
 
 export const reset = createAction(TYPES.reset);
-function onReset(state, action) {
-  console.log('Reset Store');
+function onReset() {
   return {
     isNew: false,
     table: undefined,
@@ -55,8 +52,7 @@ function onChange(state, action) {
 // Exemple: dispatch('editable', 0, 'name', 'NewName')
 export const changeAttr = createAction(TYPES.changeAttr, 'category', 'index', 'field', 'valueOrFunction');
 function onChangeAttr(state, action) {
-  console.log(action);
-  nextState = changeState(state,
+  const nextState = changeState(state,
     `item.fields.Fields.${action.category}`,
     cat => cat.map((attr, index) => {
       if (index === action.index) {
@@ -73,7 +69,6 @@ function onChangeAttr(state, action) {
       }
       return attr;
     }));
-  console.log(nextState);
   return nextState;
 }
 
@@ -123,7 +118,6 @@ export function saveNewItem() {
       dispatch(setMeta('error', JSON.stringify(err)));
       dispatch(setLoading('itemEditor', false));
     });
-    return Promise.resolve({ err: 'Invalid type' });
   };
 }
 
@@ -145,12 +139,11 @@ export function saveItem() {
       dispatch(setMeta('error', err));
       dispatch(setLoading('itemEditor', false));
     });
-    return Promise.resolve({ err: 'Invalid type' });
   };
 }
 
 export function createItem(type) {
-  return (dispatch, getState) => {
+  return (dispatch) => {
     dispatch(reset());
     dispatch(setMeta('isNew', true));
     dispatch(setMeta('type', type));

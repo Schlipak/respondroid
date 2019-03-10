@@ -30,8 +30,7 @@ export const TYPES = {
 };
 
 export const reset = createAction(TYPES.reset);
-function onReset(state, action) {
-  console.log('Reset Store');
+function onReset() {
   return {
     isNew: false,
     table: undefined,
@@ -65,8 +64,7 @@ function onChange(state, action) {
 // Exemple: dispatch('editable', 0, 'name', 'NewName')
 export const changeAttr = createAction(TYPES.changeAttr, 'category', 'index', 'field', 'valueOrFunction');
 function onChangeAttr(state, action) {
-  console.log(action);
-  nextState = changeState(state,
+  const nextState = changeState(state,
     `item.fields.Fields.${action.category}`,
     cat => cat.map((attr, index) => {
       if (index === action.index) {
@@ -83,18 +81,17 @@ function onChangeAttr(state, action) {
       }
       return attr;
     }));
-  console.log(nextState);
   return nextState;
 }
 
 export default function reducer(state = initialState, { type, payload } = {}) {
   switch (type) {
-    case TYPES.change: return onChange(state, payload);
-    case TYPES.setMeta: return onSetMeta(state, payload);
-    case TYPES.changeAttr: return onChangeAttr(state, payload);
-    case TYPES.addField: return onAddField(state, payload);
-    case TYPES.reset: return onReset(state, payload);
-    default: return state;
+  case TYPES.change: return onChange(state, payload);
+  case TYPES.setMeta: return onSetMeta(state, payload);
+  case TYPES.changeAttr: return onChangeAttr(state, payload);
+  case TYPES.addField: return onAddField(state, payload);
+  case TYPES.reset: return onReset(state, payload);
+  default: return state;
   }
 }
 
@@ -104,7 +101,6 @@ export function saveItem() {
     const editor = selectEditor(state);
     dispatch(newLoader('editor', true));
     if (editor.table === 'Types') {
-      console.warn(`Updating a type item with id ${editor.itemId}`);
       return api.sync(editor.item).then(({ err, item }) => {
         if (err) {
           dispatch(setMeta('error', err));
@@ -168,7 +164,7 @@ export function saveNewItem() {
 }
 
 export function createType() {
-  return (dispatch, getState) => {
+  return (dispatch) => {
     dispatch(reset());
     dispatch(setMenu('type', {
       fields: {

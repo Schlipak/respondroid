@@ -43,6 +43,8 @@ const dispatcher = dispatch => ({
 class LoginScreen extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
+    connectToApi: PropType.func().isRequired,
+    api: PropType.objectOf(PropType.any).isRequired,
   };
 
   constructor() {
@@ -74,9 +76,10 @@ class LoginScreen extends Component {
   validateAndSubmit = () => {
     this.validateEmail();
     this.validatePassword();
-
-    this.props.connectToApi(this.state.email, this.state.password).then(() => {
-      this.props.navigation.navigate('Home');
+    const { email, password } = this.state;
+    const { connectToApi, navigation } = this.props;
+    connectToApi(email, password).then(() => {
+      navigation.navigate('Home');
     });
   };
 
@@ -84,14 +87,14 @@ class LoginScreen extends Component {
     const {
       email, emailError, password, passwordError,
     } = this.state;
-
+    const { api } = this.props;
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         <Image source={AirtableLogo} />
         <Headline style={styles.headline}>Sign in to Airtable</Headline>
         <View style={styles.inputContainer}>
           <TextInput
-            disabled={this.props.api.connected}
+            disabled={api.connected}
             label="Account ID"
             value={email || this.baseid}
             error={emailError}
@@ -114,7 +117,7 @@ class LoginScreen extends Component {
         </View>
         <View style={styles.inputContainer}>
           <TextInput
-            disabled={this.props.api.connected}
+            disabled={api.connected}
             ref={passwordInput => (this.passwordInput = passwordInput)}
             label="Account Key"
             value={password || this.myapikey}
@@ -134,7 +137,7 @@ class LoginScreen extends Component {
           <Button
             style={styles.loginButton}
             mode="contained"
-            disabled={emailError || passwordError || this.props.api.connected}
+            disabled={emailError || passwordError || api.connected}
             onPress={this.validateAndSubmit}
           >
             Connect

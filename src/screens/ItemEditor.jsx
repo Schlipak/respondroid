@@ -5,18 +5,14 @@ import {
   StyleSheet,
   View,
   KeyboardAvoidingView,
-  TextInput as NativeTextInput,
-  TouchableOpacity,
-  Image,
 } from 'react-native';
 import {
-  Headline, TextInput, Button, HelperText, Title, Text, Subheading,
+  TextInput, Button, Title, Text,
 } from 'react-native-paper';
-import { ImagePicker } from 'expo';
 import { selectApi } from '../ducks/api';
-import { saveUsername, saveUserProfilePicture } from '../ducks/user';
-import Table from '../middlewares/Api/Table';
-import { change, reset, saveItem, saveNewItem, selectItemEditor } from '../ducks/itemEditor';
+import {
+  change, reset, saveItem, saveNewItem, selectItemEditor,
+} from '../ducks/itemEditor';
 import LoaderPlaceholder from '../components/LoaderPlaceholder';
 import FIELD_TYPES from '../constants/fieldTypes';
 import Container from '../components/Container';
@@ -31,13 +27,9 @@ const styles = StyleSheet.create({
   headline: {
     marginBottom: 5,
   },
-  inputContainer: {
-    width: '100%',
-    paddingHorizontal: 30,
-  },
-  loginButton: {
-    marginTop: 8,
-  },
+  displayFieldsRoot: bg => ({ padding: 8, backgroundColor: bg, width: '100%' }),
+  displayFieldsHead: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' },
+  flexGrow: { flex: 1 },
 });
 
 const extractor = state => ({
@@ -47,16 +39,23 @@ const extractor = state => ({
 });
 
 const dispatcher = dispatch => ({
-  saveNewItem: () => dispatch(saveNewItem()),
-  saveItem: () => dispatch(saveItem()),
-  change: (field, value) => dispatch(change(field, value)),
-  setMenu: (key, value) => dispatch(setMenu(key, value)),
+  doSaveNewItem: () => dispatch(saveNewItem()),
+  doSaveItem: () => dispatch(saveItem()),
+  doChange: (field, value) => dispatch(change(field, value)),
+  doSetMenu: (key, value) => dispatch(setMenu(key, value)),
   resetEditor: () => dispatch(reset()),
 });
 
 class PreferencesScreen extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
+    doSaveNewItem: PropType.func().isRequired,
+    doSaveItem: PropType.func().isRequired,
+    doChange: PropType.func().isRequired,
+    doSetMenu: PropType.func().isRequired,
+    resetEditor: PropType.func().isRequired,
+    editor: PropType.objectOf(PropType.any).isRequired,
+    editorLoader: PropType.bool().isRequired,
   };
 
   constructor() {
@@ -65,72 +64,85 @@ class PreferencesScreen extends Component {
   }
 
   save = () => {
-    const { editor, navigation } = this.props;
+    const {
+      editor, navigation, doSetMenu, resetEditor, doSaveNewItem, doSaveItem,
+    } = this.props;
     const { isNew, type } = editor;
     if (isNew) {
-      this.props.saveNewItem().then(({ err, item }) => {
+      doSaveNewItem().then(({ err }) => {
         if (!err) {
-          this.props.setMenu('type', type);
-          this.props.resetEditor();
+          doSetMenu('type', type);
+          resetEditor();
           navigation.navigate('ListItemView');
         }
       });
     } else {
-      this.props.saveItem();
+      doSaveItem();
     }
   };
 
-  displayFields = (fields, item, bg = 'aliceblue') => fields.map(field => (
-    <View style={{ padding: 8, backgroundColor: bg, width: '100%' }}>
-      <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-        {
-          field.type === FIELD_TYPES.string && <Container>
-            <TextInput
-              style={{ flex: 1 }}
-              mode={'outlined'}
-              value={item.fields.Value[field.name]}
-              onChangeText={(text) => {this.props.change(field.name, text)}}
-              label={field.name}
-            />
-          </Container>
-        }
-        {
-          field.type === FIELD_TYPES.number && <Container>
-            <TextInput
-              style={{ flex: 1 }}
-              mode={'outlined'}
-              value={item.fields.Value[field.name]}
-              keyboardType={'numeric'}
-              onChangeText={(text) => {this.props.change(field.name, text)}}
-              label={field.name}
-            />
-          </Container>
-        }
-        {
-          field.type === FIELD_TYPES.text && <Container>
-            <TextInput
-              style={{ flex: 1 }}
-              mode={'outlined'}
-              value={item.fields.Value[field.name]}
-              multiline
-              numberOfLines={3}
-              onChangeText={(text) => {this.props.change(field.name, text)}}
-              label={field.name}
-            />
-          </Container>
-        }
-        {
-          field.type === FIELD_TYPES.bool && <Container>
-            <Text>{field.name}</Text>
-            <Switch
-              value={item.fields.Value[field.name]}
-              onToggle={(value) => { this.props.change(field.name, value)}}
-            />
-          </Container>
-        }
+  displayFields = (fields, item, bg = 'aliceblue') => fields.map((field) => {
+    const { doChange } = this.props;
+    return (
+      <View style={styles.displayFieldsRoot(bg)}>
+        <View style={styles.displayFieldsHead}>
+          {
+            field.type === FIELD_TYPES.string && (
+              <Container>
+                <TextInput
+                  style={styles.flexGrow}
+                  mode="outlined"
+                  value={item.fields.Value[field.name]}
+                  onChangeText={(text) => { doChange(field.name, text); }}
+                  label={field.name}
+                />
+              </Container>
+            )
+          }
+          {
+            field.type === FIELD_TYPES.number && (
+              <Container>
+                <TextInput
+                  style={styles.flexGrow}
+                  mode="outlined"
+                  value={item.fields.Value[field.name]}
+                  keyboardType="numeric"
+                  onChangeText={(text) => { doChange(field.name, text); }}
+                  label={field.name}
+                />
+              </Container>
+            )
+          }
+          {
+            field.type === FIELD_TYPES.text && (
+              <Container>
+                <TextInput
+                  style={styles.flexGrow}
+                  mode="outlined"
+                  value={item.fields.Value[field.name]}
+                  multiline
+                  numberOfLines={3}
+                  onChangeText={(text) => { doChange(field.name, text); }}
+                  label={field.name}
+                />
+              </Container>
+            )
+          }
+          {
+            field.type === FIELD_TYPES.bool && (
+              <Container>
+                <Text>{field.name}</Text>
+                <Switch
+                  value={item.fields.Value[field.name]}
+                  onToggle={(value) => { doChange(field.name, value); }}
+                />
+              </Container>
+            )
+          }
+        </View>
       </View>
-    </View>
-  ));
+    );
+  });
 
   render() {
     const { editor } = this.props;
@@ -143,9 +155,9 @@ class PreferencesScreen extends Component {
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         <View>
-          <Container style={{ marginBottom: 10 }}>
+          <Container>
             <Title style={styles.headline}>{editor.item.fields.Name}</Title>
-            <Button mode={'outlined'} onPress={this.save}>
+            <Button mode="outlined" onPress={this.save}>
               { isNew ? 'Create' : 'Save' }
             </Button>
           </Container>

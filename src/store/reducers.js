@@ -4,6 +4,7 @@ import api from '../ducks/api';
 import menu from '../ducks/menu';
 import editor from '../ducks/editor';
 import itemEditor from '../ducks/itemEditor';
+import popup from '../ducks/popup';
 
 const reducers = {
   user,
@@ -12,6 +13,7 @@ const reducers = {
   menu,
   editor,
   itemEditor,
+  popup,
 };
 
 export default reducers;

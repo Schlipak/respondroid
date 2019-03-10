@@ -1,4 +1,4 @@
-export default function addKeys(arrayOrUndefined, target='id') {
+export default function addKeys(arrayOrUndefined, target = 'id') {
   if (arrayOrUndefined) {
     return arrayOrUndefined.filter(it => it).map(it => ({
       ...it,

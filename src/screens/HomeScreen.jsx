@@ -5,35 +5,22 @@ import {
 } from 'react-native';
 import {
   Button,
-  Divider, Headline, Paragraph, Title,
+  Paragraph, Title,
 } from 'react-native-paper';
-import LottieView from 'lottie-react-native';
 import { connect } from 'react-redux';
 import BookIcon from '../../assets/bookIcon.png';
 
-import CheckAnimation from '../../assets/check_animation.json';
 import { selectApi } from '../ducks/api';
 import UserHomeScreen from './UserHomeScreen';
+import Container from '../components/Container';
 
 const styles = StyleSheet.create({
   content: {
-    // flex: 1,
-    // alignItems: 'center',
-    // justifyContent: 'center',
     padding: 20,
   },
-  divider: {
-    height: 20,
-  },
-  animation: {
-    width: 200,
-    height: 200,
-  },
 });
 
-const dispatcher = dispatch => ({
-
-});
+const dispatcher = () => ({});
 
 const extractor = state => ({
   api: selectApi(state),
@@ -44,36 +31,20 @@ class HomeScreen extends Component {
     navigation: PropType.objectOf(PropType.any).isRequired,
   };
 
-  constructor() {
-    super();
-
-    this.state = { looping: false };
-  }
-
-  startAnimation = () => {
-    this.animation.play();
-  };
-
   preview = (icon, text, left = true) => {
     if (left) {
       return (
-        <View style={{
-          display: 'flex', flexDirection: 'row', marginTop: 5, alignItems: 'center',
-        }}
-        >
+        <Container>
           <Image source={icon} style={{ width: 64, height: 64, padding: 5 }} />
           <Paragraph style={{ padding: 5, textAlign: 'center', flex: 1 }}>{text}</Paragraph>
-        </View>
+        </Container>
       );
     }
     return (
-      <View style={{
-        display: 'flex', flexDirection: 'row', marginTop: 5, alignItems: 'center',
-      }}
-      >
+      <Container>
         <Paragraph style={{ padding: 5, textAlign: 'center', flex: 1 }}>{text}</Paragraph>
         <Image source={icon} style={{ width: 64, height: 64, padding: 5 }} />
-      </View>
+      </Container>
     );
   };
 
