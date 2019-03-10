@@ -1,27 +1,32 @@
 import React, { Component } from 'react';
 import PropType from 'prop-types';
 import {
-  StyleSheet,
-  KeyboardAvoidingView, View, ScrollView, Picker, TouchableOpacity,
+  View, Picker, TouchableOpacity,
 } from 'react-native';
 import {
-  Title, Text, Button, TextInput, Headline, Divider, Subheading, IconButton,
+  Text, Button, TextInput, Subheading, IconButton,
 } from 'react-native-paper';
 import Container from './Container';
 import FIELD_TYPES from '../constants/fieldTypes';
 
 class TypeEditorField extends Component {
+  static propTypes = {
+    collapsed: PropType.bool.isRequired,
+    field: PropType.objectOf(Object.any).isRequired,
+    category: PropType.string.isRequired,
+    index: PropType.number.isRequired,
+    changeAttr: PropType.func.isRequired,
+  };
+
   constructor(props) {
-    super(props);
+    super();
     this.state = {
       collapsed: props.collapsed,
     };
   }
 
   renderCollapsed() {
-    const {
-      field, changeAttr, category, index,
-    } = this.props;
+    const { field } = this.props;
     return (
       <TouchableOpacity
         style={{
@@ -47,7 +52,7 @@ class TypeEditorField extends Component {
       return this.renderCollapsed();
     }
     const {
-      field, changeAttr, category, index,
+      field, category, index, changeAttr,
     } = this.props;
     return (
       <View style={{
@@ -59,7 +64,7 @@ class TypeEditorField extends Component {
             style={{ flex: 1 }}
             value={field.name}
             onChangeText={(text) => {
-              this.props.changeAttr(category, index, 'name', text);
+              changeAttr(category, index, 'name', text);
             }}
             mode="outlined"
             label="Field Name"
@@ -77,7 +82,7 @@ class TypeEditorField extends Component {
         <TextInput
           value={field.description}
           onChangeText={(text) => {
-            this.props.changeAttr(category, index, 'description', text);
+            changeAttr(category, index, 'description', text);
           }}
           mode="outlined"
           label="Field description"
@@ -91,8 +96,8 @@ class TypeEditorField extends Component {
             style={{
               flex: 1,
             }}
-            onValueChange={(itemValue, itemIndex) => {
-              this.props.changeAttr(category, index, 'type', itemValue);
+            onValueChange={(itemValue) => {
+              changeAttr(category, index, 'type', itemValue);
             }}
             mode="dialog"
           >
@@ -114,10 +119,10 @@ class TypeEditorField extends Component {
                 color="#039be5"
                 mode="outlined"
                 onPress={() => {
-                  this.props.changeAttr(category, index, '_remove', false);
+                  changeAttr(category, index, '_remove', false);
                 }}
               >
-              Keep
+                Keep
               </Button>
             )
           }
@@ -131,11 +136,11 @@ class TypeEditorField extends Component {
                 color="crimson"
                 mode="outlined"
                 onPress={() => {
-                  this.props.changeAttr(category, index, '_remove',
+                  changeAttr(category, index, '_remove',
                     true);
                 }}
               >
-              Remove
+                Remove
               </Button>
             )
           }
