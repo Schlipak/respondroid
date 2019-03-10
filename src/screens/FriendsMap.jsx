@@ -1,26 +1,28 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import PropType from 'prop-types';
 import {
   StyleSheet,
   View,
   KeyboardAvoidingView,
-  TextInput as NativeTextInput,
-  TouchableOpacity,
   Image,
 } from 'react-native';
 import {
   Headline, TextInput, Button, HelperText, Title, Text,
 } from 'react-native-paper';
-import { ImagePicker } from 'expo';
-import { selectApi } from '../ducks/api';
-import { saveUsername, saveUserProfilePicture } from '../ducks/user';
+import MapView, { Marker } from 'react-native-maps';
+import { Location } from 'expo';
 import Table from '../middlewares/Api/Table';
+import Container from '../components/Container';
+import LoaderPlaceholder from '../components/LoaderPlaceholder';
 
 const styles = StyleSheet.create({
   content: {},
   headline: {
     marginBottom: 5,
+  },
+  mapWidget: {
+    height: 300,
+    width: '100%',
   },
   inputContainer: {
     width: '100%',
@@ -31,14 +33,23 @@ const styles = StyleSheet.create({
   },
 });
 
-const extractor = state => ({
-  api: selectApi(state),
-});
-
-const dispatcher = dispatch => ({
-  changeProfilePicture: (id, b64img) => dispatch(saveUserProfilePicture(id, b64img)),
-  changeUsername: (id, username) => dispatch(saveUsername(id, username)),
-});
+const someNames = [
+  "Kipling Humphry",
+  "Rowley Levi",
+  "Astor George",
+  "Rastus Clayton",
+  "Edgar Ezra ",
+  "Clayton Hoyt",
+  "Woody Braith",
+  "Mortimer Jackson",
+  "Camron Driskoll",
+  "Boyd Millard ",
+  "Valentine Garnett",
+  "Rickey Davin",
+  "Scottie Clayton",
+  "Arron Dex",
+  "Blaine Tye",
+];
 
 class PreferencesScreen extends Component {
   static propTypes = {
@@ -48,142 +59,107 @@ class PreferencesScreen extends Component {
   constructor() {
     super();
     this.state = {
-      filePath: '',
-      updated: false,
+      position: null,
+      loadingPosition: false,
+      markers: [],
+      friendDetected: null,
+      friends: [],
     };
+    this.positionSub = null;
   }
 
-  saveProfilePic = () => {
-    const { api } = this.props;
-    const row = api.tables.Meta.content.find(it => it.fields.Name === 'Picture');
-    if (row && row.id) {
-      this.setState({
-        updating: true,
-        updated: false,
-      });
-      this.props.changeProfilePicture(row.id, `data:image/png;base64,${this.state.data}`)
-        .then((err, record) => {
-          if (!err) {
-            this.setState({
-              updated: true,
-              updating: false,
-            });
-            setTimeout(() => {
-              this.setState({
-                updated: false,
-              });
-            }, 2000);
-          }
-        });
-    }
-  };
+  componentDidMount() {
+    setTimeout(async () => {
+      try {
+        await Location.requestPermissionsAsync();
 
-  saveUsername = () => {
-    const { api } = this.props;
-    const row = api.tables.Meta.content.find(it => it.fields.Name === 'Creator');
-    if (row && row.id) {
-      this.setState({
-        updating: true,
-        updated: false,
-      });
-      this.props.changeUsername(row.id, this.state.username).then((err, record) => {
-        if (!err) {
-          this.setState({
-            updated: true,
-            updating: false,
-          });
-          setTimeout(() => {
-            this.setState({
-              updated: false,
-            });
-          }, 2000);
-        }
-      });
-    }
+        this.setState({ loadingPosition: true });
+
+        const currentPos = await Location.getCurrentPositionAsync();
+        this.setState({ markers: someNames.map((name, i) => ({
+          latlng: {
+            latitude: currentPos.coords.latitude + 0.01 * Math.random(),
+            longitude: currentPos.coords.longitude + 0.01 * Math.random(),
+          },
+          friend: { name, id: i },
+        }))});
+
+        this.positionSub = await Location.watchPositionAsync({
+          timeInterval: 3000,
+          distanceInterval: 30,
+        }, position => this.setState({ position }));
+      }
+      catch (err) {
+        console.error(err);
+      }
+    }, 0);
   }
 
-  save = () => {
-    if (this.state.filePath) {
-      this.saveProfilePic();
-    }
-    if (this.state.username) {
-      this.saveUsername();
-    }
-  };
+  componentWillUnmount() {
+    this.positionSub && this.positionSub.remove();
+  }
 
-  toBase64 = (file, callback) => {
-    const reader = new FileReader();
-    console.log('FileReader started job on file');
-    reader.onloadend = () => {
-      callback(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  chooseFile = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      mediaTypes: 'Images',
-      aspect: [1, 1],
-      quality: 0.25,
-      base64: true,
+  addDetectedFriend(friend) {
+    this.setState({
+      markers: [ ...this.state.markers.filter(marker => marker.friend.id != friend.id)],
+      friends: [ ...this.state.friends, friend ],
+      friendDetected: null,
     });
-    if (!result.cancelled) {
-      this.setState({
-        filePath: result.uri,
-        data: result.base64,
-      });
-    }
-  };
+  }
 
   render() {
-    const img = this.state.data && `data:image/png;base64,${this.state.data}`;
+    const friendDetected = this.state.friendDetected;
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
-        <View style={{
-          display: 'flex',
-          flexDirection: 'row',
-          width: '100%',
-          alignItems: 'center',
-        }}
-        >
-          <Title style={styles.headline}>Application preferences</Title>
-          <Button onPress={this.save} disabled={this.state.updating}>
-            { this.state.updating ? 'Saving... ' : 'Save' }
+
+      <Title style={styles.headline}>Friend map</Title>
+
+      <Container style={styles.mapWidget}>
+        {this.state.position
+          ? <MapView
+            style={styles.mapWidget}
+            initialRegion={{
+              latitude: this.state.position.coords.latitude,
+              longitude: this.state.position.coords.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            }}
+            {...StyleSheet.absoluteFillObject}
+          >
+            {this.state.markers.map(marker => (
+              <Marker
+                key={marker.friend.id}
+                coordinate={marker.latlng}
+                title={marker.friend.name}
+                onPress={e => this.setState({ friendDetected: marker })}
+              />
+            ))}
+          </MapView>
+        : this.state.loadingPosition
+          ? <LoaderPlaceholder />
+          : <Text style={styles.mapWidget} >You need to turn on geolocation to use this feature</Text>}
+      </Container>
+
+      {friendDetected &&
+        <View style={styles.inputContainer}>
+          <Title>Friend detected</Title>
+          <Text>{friendDetected.friend.name}</Text>
+          <Button onPress={() => this.addDetectedFriend(friendDetected.friend)} mode={'outlined'}>
+            Add friend
           </Button>
         </View>
-        {
-          this.state.updated && (
-            <Text>
-            Saved !
-            </Text>
-          )
-        }
-        <Image source={{ uri: img || Table.getFieldByParentName(this.props.api.tables.Meta, 'Picture') }} style={{ width: 64, height: 64 }} />
-        <Button title="Change Profile Picture" onPress={this.chooseFile}>
-          Choose File
-        </Button>
-        <View style={styles.inputContainer}>
-          <TextInput
-            disabled={this.state.updating}
-            label="Username"
-            value={this.state.username && this.state.username.length >= 0 ? this.state.username : Table.getFieldByParentName(this.props.api.tables.Meta, 'Creator')}
-            mode="outlined"
-            error={undefined}
-            onChangeText={text => this.setState({ username: text || '' })}
-            onBlur={() => true}
-            render={props => (
-              <NativeTextInput {...props} />
-            )}
-          />
-          <HelperText type="error" visible={false}>
-            Invalid Key
-          </HelperText>
-        </View>
+      }
+
+      <View style={styles.inputContainer}>
+        <Title>Current friends</Title>
+        {this.state.friends.map(friend =>
+          (<Text key={friend.id} >{friend.name}</Text>)
+        )}
+      </View>
+
       </KeyboardAvoidingView>
     );
   }
 }
 
-const ConnectedPreferencesScreen = connect(extractor, dispatcher)(PreferencesScreen);
-export default ConnectedPreferencesScreen;
+export default PreferencesScreen;

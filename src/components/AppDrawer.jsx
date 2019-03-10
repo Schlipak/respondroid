@@ -117,6 +117,7 @@ class AppDrawer extends React.Component {
       this.makeEntry('Friends', 'group', () => navigation.navigate('Friends')),
       this.makeEntry('Create', 'book', this.createNewType),
       this.makeEntry('Preferences', 'cake', () => navigation.navigate('Preferences')),
+      this.makeEntry('Map', 'cake', () => navigation.navigate('FriendsMap')),
       this.makeEntry('Logout', 'block', () => {
         const { disconnect } = this.props;
         disconnect().then(() => {
