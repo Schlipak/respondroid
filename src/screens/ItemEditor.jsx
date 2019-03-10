@@ -49,13 +49,13 @@ const dispatcher = dispatch => ({
 class PreferencesScreen extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
-    doSaveNewItem: PropType.func().isRequired,
-    doSaveItem: PropType.func().isRequired,
-    doChange: PropType.func().isRequired,
-    doSetMenu: PropType.func().isRequired,
-    resetEditor: PropType.func().isRequired,
+    doSaveNewItem: PropType.func.isRequired,
+    doSaveItem: PropType.func.isRequired,
+    doChange: PropType.func.isRequired,
+    doSetMenu: PropType.func.isRequired,
+    resetEditor: PropType.func.isRequired,
     editor: PropType.objectOf(PropType.any).isRequired,
-    editorLoader: PropType.bool().isRequired,
+    editorLoader: PropType.bool.isRequired,
   };
 
   constructor() {

@@ -43,7 +43,7 @@ const dispatcher = dispatch => ({
 class LoginScreen extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
-    connectToApi: PropType.func().isRequired,
+    connectToApi: PropType.func.isRequired,
     api: PropType.objectOf(PropType.any).isRequired,
   };
 

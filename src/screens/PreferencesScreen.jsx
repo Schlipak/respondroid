@@ -46,8 +46,8 @@ class PreferencesScreen extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
     api: PropType.objectOf(PropType.any).isRequired,
-    changeProfilePicture: PropType.func().isRequired,
-    changeUsername: PropType.func().isRequired,
+    changeProfilePicture: PropType.func.isRequired,
+    changeUsername: PropType.func.isRequired,
   };
 
   constructor() {

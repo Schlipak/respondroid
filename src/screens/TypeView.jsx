@@ -39,9 +39,9 @@ const dispatcher = dispatch => ({
 class TypeView extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
-    doSetMenu: PropType.func().isRequired,
+    doSetMenu: PropType.func.isRequired,
     menu: PropType.objectOf(PropType.any).isRequired,
-    resetEditor: PropType.func().isRequired,
+    resetEditor: PropType.func.isRequired,
   };
 
   constructor() {

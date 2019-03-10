@@ -42,9 +42,9 @@ class ListItemView extends Component {
     navigation: PropType.objectOf(PropType.any).isRequired,
     menu: PropType.objectOf(PropType.any).isRequired,
     api: PropType.objectOf(PropType.any).isRequired,
-    doSetPopupInfo: PropType.func().isRequired,
-    setInEditor: PropType.func().isRequired,
-    doCreateItem: PropType.func().isRequired,
+    doSetPopupInfo: PropType.func.isRequired,
+    setInEditor: PropType.func.isRequired,
+    doCreateItem: PropType.func.isRequired,
   };
 
   constructor() {
