@@ -10,15 +10,24 @@ import {
   Image,
 } from 'react-native';
 import {
-  Headline, TextInput, Button, HelperText, Title, Text,
+  Headline, TextInput, Button, HelperText, Title, Text, Subheading,
 } from 'react-native-paper';
 import { ImagePicker } from 'expo';
 import { selectApi } from '../ducks/api';
 import { saveUsername, saveUserProfilePicture } from '../ducks/user';
 import Table from '../middlewares/Api/Table';
+import { change, reset, saveItem, saveNewItem, selectItemEditor } from '../ducks/itemEditor';
+import LoaderPlaceholder from '../components/LoaderPlaceholder';
+import FIELD_TYPES from '../constants/fieldTypes';
+import Container from '../components/Container';
+import { selectLoaders } from '../ducks/Loaders';
+import { setMenu } from '../ducks/menu';
+import Switch from '../components/Switch';
 
 const styles = StyleSheet.create({
-  content: {},
+  content: {
+    padding: 10,
+  },
   headline: {
     marginBottom: 5,
   },
@@ -33,11 +42,16 @@ const styles = StyleSheet.create({
 
 const extractor = state => ({
   api: selectApi(state),
+  editor: selectItemEditor(state),
+  editorLoader: selectLoaders(state, 'itemEditor'),
 });
 
 const dispatcher = dispatch => ({
-  changeProfilePicture: (id, b64img) => dispatch(saveUserProfilePicture(id, b64img)),
-  changeUsername: (id, username) => dispatch(saveUsername(id, username)),
+  saveNewItem: () => dispatch(saveNewItem()),
+  saveItem: () => dispatch(saveItem()),
+  change: (field, value) => dispatch(change(field, value)),
+  setMenu: (key, value) => dispatch(setMenu(key, value)),
+  resetEditor: () => dispatch(reset()),
 });
 
 class PreferencesScreen extends Component {
@@ -47,138 +61,100 @@ class PreferencesScreen extends Component {
 
   constructor() {
     super();
-    this.state = {
-      filePath: '',
-      updated: false,
-    };
-  }
-
-  saveProfilePic = () => {
-    const { api } = this.props;
-    const row = api.tables.Meta.content.find(it => it.fields.Name === 'Picture');
-    if (row && row.id) {
-      this.setState({
-        updating: true,
-        updated: false,
-      });
-      this.props.changeProfilePicture(row.id, `data:image/png;base64,${this.state.data}`)
-        .then((err, record) => {
-          if (!err) {
-            this.setState({
-              updated: true,
-              updating: false,
-            });
-            setTimeout(() => {
-              this.setState({
-                updated: false,
-              });
-            }, 2000);
-          }
-        });
-    }
-  };
-
-  saveUsername = () => {
-    const { api } = this.props;
-    const row = api.tables.Meta.content.find(it => it.fields.Name === 'Creator');
-    if (row && row.id) {
-      this.setState({
-        updating: true,
-        updated: false,
-      });
-      this.props.changeUsername(row.id, this.state.username).then((err, record) => {
-        if (!err) {
-          this.setState({
-            updated: true,
-            updating: false,
-          });
-          setTimeout(() => {
-            this.setState({
-              updated: false,
-            });
-          }, 2000);
-        }
-      });
-    }
+    this.state = {};
   }
 
   save = () => {
-    if (this.state.filePath) {
-      this.saveProfilePic();
-    }
-    if (this.state.username) {
-      this.saveUsername();
-    }
-  };
-
-  toBase64 = (file, callback) => {
-    const reader = new FileReader();
-    console.log('FileReader started job on file');
-    reader.onloadend = () => {
-      callback(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  chooseFile = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      mediaTypes: 'Images',
-      aspect: [1, 1],
-      quality: 0.25,
-      base64: true,
-    });
-    if (!result.cancelled) {
-      this.setState({
-        filePath: result.uri,
-        data: result.base64,
+    const { editor, navigation } = this.props;
+    const { isNew, type } = editor;
+    if (isNew) {
+      this.props.saveNewItem().then(({ err, item }) => {
+        if (!err) {
+          this.props.setMenu('type', type);
+          this.props.resetEditor();
+          navigation.navigate('ListItemView');
+        }
       });
+    } else {
+      this.props.saveItem();
     }
   };
+
+  displayFields = (fields, item, bg = 'aliceblue') => fields.map(field => (
+    <View style={{ padding: 8, backgroundColor: bg, width: '100%' }}>
+      <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+        {
+          field.type === FIELD_TYPES.string && <Container>
+            <TextInput
+              style={{ flex: 1 }}
+              mode={'outlined'}
+              value={item.fields.Value[field.name]}
+              onChangeText={(text) => {this.props.change(field.name, text)}}
+              label={field.name}
+            />
+          </Container>
+        }
+        {
+          field.type === FIELD_TYPES.number && <Container>
+            <TextInput
+              style={{ flex: 1 }}
+              mode={'outlined'}
+              value={item.fields.Value[field.name]}
+              keyboardType={'numeric'}
+              onChangeText={(text) => {this.props.change(field.name, text)}}
+              label={field.name}
+            />
+          </Container>
+        }
+        {
+          field.type === FIELD_TYPES.text && <Container>
+            <TextInput
+              style={{ flex: 1 }}
+              mode={'outlined'}
+              value={item.fields.Value[field.name]}
+              multiline
+              numberOfLines={3}
+              onChangeText={(text) => {this.props.change(field.name, text)}}
+              label={field.name}
+            />
+          </Container>
+        }
+        {
+          field.type === FIELD_TYPES.bool && <Container>
+            <Text>{field.name}</Text>
+            <Switch
+              value={item.fields.Value[field.name]}
+              onToggle={(value) => { this.props.change(field.name, value)}}
+            />
+          </Container>
+        }
+      </View>
+    </View>
+  ));
 
   render() {
-    const img = this.state.data && `data:image/png;base64,${this.state.data}`;
+    const { editor } = this.props;
+    const { type, item, isNew } = editor;
+    const { editorLoader } = this.props;
+    if (!editor || !type || editorLoader) {
+      return <LoaderPlaceholder />;
+    }
+    const fields = type.fields.Fields.editable;
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
-        <View style={{
-          display: 'flex',
-          flexDirection: 'row',
-          width: '100%',
-          alignItems: 'center',
-        }}
-        >
-          <Title style={styles.headline}>Application preferences</Title>
-          <Button onPress={this.save} disabled={this.state.updating}>
-            { this.state.updating ? 'Saving... ' : 'Save' }
-          </Button>
-        </View>
-        {
-          this.state.updated && (
-            <Text>
-            Saved !
-            </Text>
-          )
-        }
-        <Image source={{ uri: img || Table.getFieldByParentName(this.props.api.tables.Meta, 'Picture') }} style={{ width: 64, height: 64 }} />
-        <Button title="Change Profile Picture" onPress={this.chooseFile}>
-          Choose File
-        </Button>
-        <View style={styles.inputContainer}>
-          <TextInput
-            disabled={this.state.updating}
-            label="Username"
-            value={this.state.username && this.state.username.length >= 0 ? this.state.username : Table.getFieldByParentName(this.props.api.tables.Meta, 'Creator')}
-            mode="outlined"
-            error={undefined}
-            onChangeText={text => this.setState({ username: text || '' })}
-            onBlur={() => true}
-            render={props => (
-              <NativeTextInput {...props} />
-            )}
-          />
-          <HelperText type="error" visible={false}>
-            Invalid Key
-          </HelperText>
+        <View>
+          <Container style={{ marginBottom: 10 }}>
+            <Title style={styles.headline}>{editor.item.fields.Name}</Title>
+            <Button mode={'outlined'} onPress={this.save}>
+              { isNew ? 'Create' : 'Save' }
+            </Button>
+          </Container>
+          <Text>
+            {editor.error && editor.error.message}
+          </Text>
+          <View>
+            {fields && this.displayFields(fields, item)}
+          </View>
         </View>
       </KeyboardAvoidingView>
     );
