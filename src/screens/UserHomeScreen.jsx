@@ -1,34 +1,21 @@
 import React, { Component } from 'react';
 import PropType from 'prop-types';
 import { connect } from 'react-redux';
-import {
-  Image, ScrollView, StyleSheet, View,
-} from 'react-native';
-import {
-  Button,
-  Paragraph, Subheading, Title,
-} from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Button, Subheading, Title } from 'react-native-paper';
 import * as dotprop from 'dot-prop-immutable';
 import { selectApi } from '../ducks/api';
 import addKeys from '../utils/addKeys';
 import { setMenu } from '../ducks/menu';
 import LoaderPlaceholder from '../components/LoaderPlaceholder';
-import Container from '../components/Container';
 
 const crimson = 'crimson';
 
 const styles = StyleSheet.create({
   content: {
-    // flex: 1,
-    // alignItems: 'center',
-    // justifyContent: 'center',
     padding: 15,
     height: '100%',
   },
-  previewLeftSide: { width: 64, height: 64, padding: 5 },
-  previewRightSide: { width: 64, height: 64, padding: 5 },
-  iconStyle: { width: 64, height: 64, padding: 5 },
-  previewParagraph: { padding: 5, textAlign: 'center', flex: 1 },
 });
 
 const dispatcher = dispatch => ({
@@ -56,23 +43,6 @@ class UserHomeScreen extends Component {
       doSetMenu('type', {});
     }
     navigation.navigate(screen);
-  };
-
-  preview = (icon, text, left = true) => {
-    if (left) {
-      return (
-        <Container>
-          <Image source={icon} style={styles.previewLeftSide} />
-          <Paragraph style={styles.previewParagraph}>{text}</Paragraph>
-        </Container>
-      );
-    }
-    return (
-      <Container>
-        <Paragraph style={styles.previewRightSide}>{text}</Paragraph>
-        <Image source={icon} style={styles.iconStyle} />
-      </Container>
-    );
   };
 
   render() {

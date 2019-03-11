@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import {
   RefreshControl, StyleSheet, View, Dimensions,
 } from 'react-native';
+import PropTypes from 'prop-types';
 import { List, Text, TouchableRipple } from 'react-native-paper';
 import { SwipeListView } from 'react-native-swipe-list-view';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { standardColors, palette } from '../constants/colors';
 import theme from '../constants/theme';
@@ -34,11 +34,16 @@ const styles = StyleSheet.create({
 });
 
 export default class SwipableItemList extends Component {
+  static propTypes = {
+    list: PropTypes.objectOf(PropTypes.any).isRequired,
+    parser: PropTypes.func.isRequired,
+  };
+
   constructor(props) {
-    super(props);
+    super();
     this.width = Dimensions.get('window').width;
     const { list, parser } = props;
-    const items = list.map(props.parser);
+    const items = list.map(parser);
     this.state = {
       height: 0,
       refreshing: false,
@@ -87,10 +92,17 @@ export default class SwipableItemList extends Component {
         onSwipeRight(item);
       }
     }
+    return undefined;
+  };
+
+  resetSwipe = (direction) => {
+    this.setState({
+      [`${direction}Swipe`]: false,
+    });
   };
 
   renderItem(rowData) {
-    const { index, item } = rowData;
+    const { item, onPress } = rowData;
     const {
       onClickLeft, onSwipeLeft, onClickRight, onSwipeRight,
     } = item;
@@ -118,7 +130,7 @@ export default class SwipableItemList extends Component {
         <List.Item
           title={item.title}
           description={item.description}
-          onPress={() => this.props.onPress(item.ref)}
+          onPress={() => onPress(item.ref)}
           style={{
             ...styles.listItem,
             ...borderLeft,
@@ -131,10 +143,10 @@ export default class SwipableItemList extends Component {
 
   renderHiddenItem(rowData, rowMap) {
     const {
-      items, height: width, leftSwipe, rightSwipe,
+      height: width,
     } = this.state;
     const { item } = rowData;
-    const { index, key, done } = item;
+    const { key } = item;
     const {
       onClickLeft, onSwipeLeft, onClickRight, onSwipeRight,
     } = item;
@@ -148,10 +160,6 @@ export default class SwipableItemList extends Component {
                   rowMap[key].closeRow();
                   // Add callback from redux props, on click left icon
                   onClickLeft(item);
-                // setTimeout(() => {
-                //   items[index].done = !done;
-                //   this.setState({ items });
-                // }, 500);
                 }}
                 style={[
                   styles.listButton,
@@ -177,10 +185,6 @@ export default class SwipableItemList extends Component {
                   rowMap[key].closeRow();
                   // Add callback from redux props, on click left icon
                   onClickLeft(item);
-                  // setTimeout(() => {
-                  //   items[index].done = !done;
-                  //   this.setState({ items });
-                  // }, 500);
                 }}
                 style={[
                   styles.listButton,
@@ -250,15 +254,9 @@ export default class SwipableItemList extends Component {
     );
   }
 
-  resetSwipe = (direction) => {
-    this.setState({
-      [`${direction}Swipe`]: false,
-    });
-  };
-
   render() {
     const {
-      height, width, refreshing, items,
+      height, refreshing, items,
     } = this.state;
     return (
       <SwipeListView

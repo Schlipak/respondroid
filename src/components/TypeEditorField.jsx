@@ -1,13 +1,31 @@
 import React, { Component } from 'react';
 import PropType from 'prop-types';
 import {
-  View, Picker, TouchableOpacity,
+  View, Picker, TouchableOpacity, StyleSheet,
 } from 'react-native';
 import {
   Text, Button, TextInput, Subheading, IconButton,
 } from 'react-native-paper';
 import Container from './Container';
 import FIELD_TYPES from '../constants/fieldTypes';
+
+const white = 'white';
+const black = 'black';
+const green = '#4CAE50';
+const grey = '#374046';
+
+const styles = StyleSheet.create({
+  touch: {
+    marginBottom: 4,
+    padding: 12,
+    backgroundColor: white,
+    borderWidth: 1,
+    borderColor: black,
+    borderRadius: 5,
+  },
+  color: c => ({ color: c }),
+  flexGrow: { flex: 1 },
+});
 
 class TypeEditorField extends Component {
   static propTypes = {
@@ -29,9 +47,7 @@ class TypeEditorField extends Component {
     const { field } = this.props;
     return (
       <TouchableOpacity
-        style={{
-          marginBottom: 4, padding: 12, backgroundColor: 'white', borderWidth: 1, borderColor: 'black', borderRadius: 5,
-        }}
+        style={styles.touch}
         onPress={() => {
           this.setState({
             collapsed: false,
@@ -39,8 +55,8 @@ class TypeEditorField extends Component {
         }}
       >
         <Container>
-          <Text style={{ color: '#4CAE50' }}>{field.type}</Text>
-          <Text style={{ color: '#374046' }}>{field.name}</Text>
+          <Text style={styles.color(green)}>{field.type}</Text>
+          <Text style={styles.color(grey)}>{field.name}</Text>
         </Container>
       </TouchableOpacity>
     );
@@ -55,13 +71,10 @@ class TypeEditorField extends Component {
       field, category, index, changeAttr,
     } = this.props;
     return (
-      <View style={{
-        marginBottom: 4, padding: 12, backgroundColor: 'white', borderWidth: 1, borderColor: 'black', borderRadius: 5,
-      }}
-      >
+      <View style={styles.touch}>
         <Container>
           <TextInput
-            style={{ flex: 1 }}
+            style={styles.flexGrow}
             value={field.name}
             onChangeText={(text) => {
               changeAttr(category, index, 'name', text);
@@ -93,9 +106,7 @@ class TypeEditorField extends Component {
           </Subheading>
           <Picker
             selectedValue={field.type || FIELD_TYPES.TEXT}
-            style={{
-              flex: 1,
-            }}
+            style={styles.flexGrow}
             onValueChange={(itemValue) => {
               changeAttr(category, index, 'type', itemValue);
             }}
@@ -111,8 +122,7 @@ class TypeEditorField extends Component {
             }
           </Picker>
           {
-            Object.keys(field).includes('_remove')
-            && field._remove === true
+            Object.keys(field).includes('remove') && field.remove === true
             && (
               <Button
                 icon="check"
@@ -127,9 +137,9 @@ class TypeEditorField extends Component {
             )
           }
           {
-            ((Object.keys(field).includes('_remove') && field._remove
+            ((Object.keys(field).includes('remove') && field.remove
               === false)
-              || !Object.keys(field).includes('_remove'))
+              || !Object.keys(field).includes('remove'))
             && (
               <Button
                 icon="delete"

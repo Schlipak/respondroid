@@ -14,10 +14,17 @@ import { selectApi } from '../ducks/api';
 import UserHomeScreen from './UserHomeScreen';
 import Container from '../components/Container';
 
+const crimson = 'crimson';
+
 const styles = StyleSheet.create({
   content: {
     padding: 20,
   },
+  previewParagraph: { padding: 5, textAlign: 'center', flex: 1 },
+  previewIcon: { width: 64, height: 64, padding: 5 },
+  crimsonText: { color: crimson },
+  flexGrow: { flex: 1 },
+  flexGrowAndCenter: { flex: 1, textAlign: 'center' },
 });
 
 const dispatcher = () => ({});
@@ -29,21 +36,22 @@ const extractor = state => ({
 class HomeScreen extends Component {
   static propTypes = {
     navigation: PropType.objectOf(PropType.any).isRequired,
+    api: PropType.objectOf(PropType.any).isRequired,
   };
 
   preview = (icon, text, left = true) => {
     if (left) {
       return (
         <Container>
-          <Image source={icon} style={{ width: 64, height: 64, padding: 5 }} />
-          <Paragraph style={{ padding: 5, textAlign: 'center', flex: 1 }}>{text}</Paragraph>
+          <Image source={icon} style={styles.previewIcon} />
+          <Paragraph style={styles.previewParagraph}>{text}</Paragraph>
         </Container>
       );
     }
     return (
       <Container>
-        <Paragraph style={{ padding: 5, textAlign: 'center', flex: 1 }}>{text}</Paragraph>
-        <Image source={icon} style={{ width: 64, height: 64, padding: 5 }} />
+        <Paragraph style={styles.previewParagraph}>{text}</Paragraph>
+        <Image source={icon} style={styles.previewIcon} />
       </Container>
     );
   };
@@ -55,35 +63,34 @@ class HomeScreen extends Component {
     }
     return (
       <View style={styles.content}>
-        <Title style={{ color: 'crimson' }}>
+        <Title style={styles.crimsonText}>
           Kanbord
         </Title>
         <Paragraph>
-          Kanbord is a powerful tool. Design your own solutions !
+          <Text>
+            Kanbord is a powerful tool. Design your own solutions !
+          </Text>
         </Paragraph>
-        <View style={{
-          marginTop: 5, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-        }}
-        >
+        <Container>
           <Button
-            style={{ flex: 1 }}
+            style={styles.flexGrow}
             mode="contained"
             onPress={() => navigation.navigate('HowToConnect')}
           >
             Discover
           </Button>
-          <Text style={{ flex: 1, textAlign: 'center' }}>
+          <Text style={styles.flexGrowAndCenter}>
             or
           </Text>
           <Button
-            style={{ flex: 1 }}
+            style={styles.flexGrow}
             mode="outlined"
             onPress={() => navigation.navigate('Login')}
           >
             Login
           </Button>
-        </View>
-        {this.preview(BookIcon, 'Create any Object you want. Memo, Event, Task, Project, Reading Notes...')}
+        </Container>
+        {this.preview(BookIcon, 'Create any Object you want. Memo, Event, Task, ...')}
         {this.preview(BookIcon, 'Program custom behaviors and views for each.', false)}
         {this.preview(BookIcon, 'Empower yourself and save time daily')}
       </View>

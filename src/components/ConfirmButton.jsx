@@ -1,45 +1,74 @@
 import * as React from 'react';
-import { View } from 'react-native';
-import { Button, Paragraph, Dialog, Portal } from 'react-native-paper';
+import PropTypes from 'prop-types';
+import { StyleSheet, View } from 'react-native';
+import { Button, Dialog, Portal } from 'react-native-paper';
+
+const styles = StyleSheet.create({
+  cancelButton: { marginRight: 10 },
+});
 
 class ConfirmButton extends React.Component {
+  static propTypes = {
+    visible: PropTypes.bool.isRequired,
+    onConfirm: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    color: PropTypes.objectOf(PropTypes.any).isRequired,
+    mode: PropTypes.objectOf(PropTypes.any).isRequired,
+    content: PropTypes.objectOf(PropTypes.any).isRequired,
+    label: PropTypes.objectOf(PropTypes.any).isRequired,
+    title: PropTypes.objectOf(PropTypes.any).isRequired,
+  };
+
   constructor(props) {
     super(props);
     this.state = {
       visible: props.visible || false,
     };
-
   }
-  _showDialog = () => this.setState({ visible: true });
 
-  _hideDialog = () => this.setState({ visible: false });
+  showDialog = () => this.setState({ visible: true });
+
+  hideDialog = () => this.setState({ visible: false });
 
   confirm = () => {
-    this._hideDialog();
-    this.props.onConfirm();
+    const { onConfirm } = this.props;
+    this.hideDialog();
+    onConfirm();
   };
 
   cancel = () => {
-    this.props.onCancel();
-    this._hideDialog();
+    const { onCancel } = this.props;
+    onCancel();
+    this.hideDialog();
   };
 
   render() {
-    const { color, mode } = this.props;
+    const {
+      color, mode, content, label, title,
+    } = this.props;
+    const { visible } = this.state;
     return (
       <View>
-        <Button onPress={this._showDialog} mode={mode || 'contained'} color={color}>{this.props.label}</Button>
+        <Button onPress={this.showDialog} mode={mode || 'contained'} color={color}>{label}</Button>
         <Portal>
           <Dialog
-            visible={this.state.visible}
-            onDismiss={this.cancel}>
-            <Dialog.Title>{this.props.title}</Dialog.Title>
+            visible={visible}
+            onDismiss={this.cancel}
+          >
+            <Dialog.Title>{title}</Dialog.Title>
             <Dialog.Content>
-              {this.props.content}
+              {content}
             </Dialog.Content>
             <Dialog.Actions>
-              <Button style={{ marginRight: 10 }} onPress={this.cancel} color={'orange'} mode={'outlined'}>Cancel</Button>
-              <Button onPress={this.confirm} mode={'contained'}>Confirm</Button>
+              <Button
+                style={styles.cancelButton}
+                onPress={this.cancel}
+                color="orange"
+                mode="outlined"
+              >
+                Cancel
+              </Button>
+              <Button onPress={this.confirm} mode="contained">Confirm</Button>
             </Dialog.Actions>
           </Dialog>
         </Portal>
@@ -48,4 +77,4 @@ class ConfirmButton extends React.Component {
   }
 }
 
-export default ConfirmButton
+export default ConfirmButton;

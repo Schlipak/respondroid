@@ -8,13 +8,12 @@ import {
 } from 'react-native-paper';
 
 import { connect } from 'react-redux';
-import * as dotprop from 'dot-prop-immutable';
 import theme from '../constants/theme';
 import { standardColors } from '../constants/colors';
 import { selectApi } from '../ducks/api';
 import Table from '../middlewares/Api/Table';
 import { disconnectApi } from '../middlewares/Api/thunks';
-import version from '../version.js';
+import version from '../version';
 import { setMenu } from '../ducks/menu';
 import { createType } from '../ducks/editor';
 
@@ -62,8 +61,8 @@ const styles = StyleSheet.create({
 
 const dispatcher = dispatch => ({
   disconnect: () => dispatch(disconnectApi()),
-  setMenu: (key, value) => dispatch(setMenu(key, value)),
-  createType: () => dispatch(createType()),
+  doSetMenu: (key, value) => dispatch(setMenu(key, value)),
+  doCreateType: () => dispatch(createType()),
 });
 
 const extractor = state => ({
@@ -71,19 +70,27 @@ const extractor = state => ({
 });
 
 class AppDrawer extends React.Component {
+  static propTypes = {
+    navigation: PropTypes.objectOf(PropTypes.any).isRequired,
+    doSetMenu: PropTypes.func.isRequired,
+    disconnect: PropTypes.func.isRequired,
+    doCreateType: PropTypes.func.isRequired,
+    api: PropTypes.objectOf(PropTypes.any).isRequired,
+  };
+
   constructor(props) {
     super(props);
     this.state = {};
   }
 
   makeEntry = (label, iconName, callback) => {
-    const { setMenu } = this.props;
+    const { doSetMenu } = this.props;
     return (
       <Drawer.Item
         label={label}
         icon={iconName}
         onPress={() => {
-          setMenu('title', label);
+          doSetMenu('title', label);
           callback();
         }}
       />
@@ -91,8 +98,8 @@ class AppDrawer extends React.Component {
   }
 
   createNewType = () => {
-    const { navigation } = this.props;
-    this.props.createType().then(() => {
+    const { navigation, doCreateType } = this.props;
+    doCreateType().then(() => {
       navigation.navigate('TypeEditor');
     });
   };
@@ -104,15 +111,6 @@ class AppDrawer extends React.Component {
     const { index, routes } = routesData[0];
     const { routeName } = routes[index];
 
-    const types = dotprop.get(api, 'tables.Types.content') || [];
-    const tables = types.map(t => (
-      <Drawer.Item
-        label={t.fields.Name}
-        icon="folder"
-        active={routeName === t.fields.Name}
-        onPress={() => navigation.navigate('TypeHome', { title: t.fields.Name, type: t })}
-      />
-    ));
     const connectedLinks = [
       this.makeEntry('Create', 'book', this.createNewType),
       this.makeEntry('Preferences', 'cake', () => navigation.navigate('Preferences')),
@@ -194,10 +192,6 @@ class AppDrawer extends React.Component {
     );
   }
 }
-
-AppDrawer.propTypes = {
-  navigation: PropTypes.objectOf(PropTypes.any).isRequired,
-};
 
 const ConnectedAppDrawer = connect(extractor, dispatcher)(AppDrawer);
 export default ConnectedAppDrawer;

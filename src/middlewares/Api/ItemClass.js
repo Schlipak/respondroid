@@ -42,11 +42,8 @@ class Item {
       if (item.fields.Fields) {
         const removable = ['editable', 'locked', 'methods', 'classMethods'];
         removable.forEach((key) => {
-          fieldsCopy[key] = fieldsCopy[key].filter(attr => attr._remove === undefined || attr._remove !== true);
+          fieldsCopy[key] = fieldsCopy[key].filter(attr => attr.remove === undefined || attr.remove !== true);
         });
-        // fieldsCopy.locked = fieldsCopy.locked.filter(attr => attr._remove === undefined || attr._remove !== true);
-        // fieldsCopy.methods = fieldsCopy.methods.filter(attr => attr._remove === undefined || attr._remove !== true);
-        // fieldsCopy.classMethods = fieldsCopy.classMethods.filter(attr => attr._remove === undefined || attr._remove !== true);
         item.fields.Fields = fieldsCopy;
         serialized = JSON.stringify(fieldsCopy);
         console.log('serialized', serialized);

@@ -91,14 +91,15 @@ class PreferencesScreen extends Component {
           timeInterval: 3000,
           distanceInterval: 30,
         }, position => this.setState({ position }));
+        return undefined;
       } catch (err) {
-        console.error(err);
+        return err;
       }
     }, 0);
   }
 
   componentWillUnmount() {
-    this.positionSub && this.positionSub.remove();
+    if (this.positionSub) { this.positionSub.remove(); }
   }
 
   addDetectedFriend(friend) {
@@ -110,41 +111,46 @@ class PreferencesScreen extends Component {
   }
 
   render() {
-    const { friendDetected, position } = this.state;
+    const {
+      friends, friendDetected, loadingPosition, position, markers,
+    } = this.state;
+    let content;
+    if (position) {
+      content = (
+        <MapView
+          {...StyleSheet.absoluteFillObject}
+          initialRegion={{
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          }}
+        >
+          {markers.map(marker => (
+            <Marker
+              key={marker.friend.id}
+              coordinate={marker.latlng}
+              title={marker.friend.name}
+              onPress={() => this.setState({ friendDetected: marker })}
+            />
+          ))}
+        </MapView>
+      );
+    } else if (loadingPosition) {
+      content = <LoaderPlaceholder />;
+    } else {
+      content = (
+        <Text style={styles.mapWidgetMessage}>
+            You need to turn on geolocation to use this feature
+        </Text>
+      );
+    }
     return (
       <KeyboardAvoidingView style={styles.content} behavior="padding">
         <Title style={styles.headline}>Friends map</Title>
         <Container style={styles.mapWidget}>
-          {
-            position ? (
-              <MapView
-                {...StyleSheet.absoluteFillObject}
-                initialRegion={{
-                  latitude: position.coords.latitude,
-                  longitude: position.coords.longitude,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
-                }}
-              >
-                {this.state.markers.map(marker => (
-                  <Marker
-                    key={marker.friend.id}
-                    coordinate={marker.latlng}
-                    title={marker.friend.name}
-                    onPress={e => this.setState({ friendDetected: marker })}
-                  />
-                ))}
-              </MapView>
-            )
-              : this.state.loadingPosition
-                ? <LoaderPlaceholder />
-                : (
-                  <Text style={styles.mapWidgetMessage}>
-                    You need to turn on geolocation to use this feature
-                  </Text>
-                )}
+          {content}
         </Container>
-
         {friendDetected
         && (
         <>
@@ -162,7 +168,7 @@ class PreferencesScreen extends Component {
         <>
           <Title style={styles.headline}>Current friends</Title>
           <View style={styles.content}>
-            {this.state.friends.map(friend => (<Text key={friend.id}>{friend.name}</Text>))}
+            {friends.map(friend => (<Text key={friend.id}>{friend.name}</Text>))}
           </View>
         </>
 

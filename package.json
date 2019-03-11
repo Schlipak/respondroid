@@ -6,7 +6,7 @@
     "ios": "expo start --ios",
     "usb": "expo start --localhost --android",
     "eject": "expo eject",
-    "lint": "eslint ./src/**/*.jsx ./src/**/*.js"
+    "lint": "eslint ./src/**/*.js ./src/**/*.jsx"
   },
   "dependencies": {
     "@expo/vector-icons": "^9.0.0",
